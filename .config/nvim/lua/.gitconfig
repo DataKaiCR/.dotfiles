@@ -1,0 +1,28 @@
+[user]
+	name = datakaicr
+	email = hstecher@datakai.net
+
+[core]
+	editor = nvim
+	excludesfile = ~/.gitignore_global
+
+[color]
+	ui = auto
+
+[pull]
+	rebase = false
+
+[init]
+	defaultBranch = main
+
+[alias]
+	st = status
+	ci = commit
+	co = checkout
+	br = branch
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	unstage = reset HEAD --
+	last = log -1 HEAD
+
+[credential]
+	helper = cache --timeout=3600
