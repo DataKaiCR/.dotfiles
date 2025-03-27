@@ -20,7 +20,8 @@ return {
                 --'ts_ls',
                 'zls',
                 'powershell_es',
-                'pyright'
+                'pyright',
+                'marksman'
             },
             handlers = {
                 function (server_name) 
