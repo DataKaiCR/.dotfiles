@@ -3,7 +3,7 @@
 vim.g.mapleader = " "
 
 -- Disable space key default behavior
-vim.keymap.set({"n"}, "<Space>", "<Nop>", { silent = true })
+vim.keymap.set({ "n" }, "<Space>", "<Nop>", { silent = true })
 -- mapping to exit using leader key
 vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 
@@ -28,11 +28,11 @@ end)
 -- vim.keymap.set('n', '<leader>zf', ":ObsidianSearch<CR>", { desc = "Find Zettels" })
 -- Open daily note
 -- vim.keymap.set('n', '<leader>zt', ":ObsidianToday<CR>", { desc = "Today's Note" })
--- Follow link under cursor-- 
+-- Follow link under cursor--
 
 -- Clipboard shortcuts
-vim.keymap.set({"n", "v"}, "<leader>y", '"+y', { desc = "Copy to system clipboard" })
-vim.keymap.set({"n", "v"}, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
+vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Copy to system clipboard" })
+vim.keymap.set({ "n", "v" }, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
 vim.keymap.set("n", "<leader>Y", '"+Y', { desc = "Copy line to system clipboard" })
 --vim.keymap.set('n', '<leader>zo', ":ObsidianFollowLink<CR>", { desc = "Open Link" })
 
@@ -51,7 +51,7 @@ vim.keymap.set("n", "<leader>zf", function()
     require("telescope.builtin").find_files({
         prompt_title = "Find Notes",
         cwd = "~/second-brain",
-        file_ignore_patterns = {"%.jpg", "%.png"},
+        file_ignore_patterns = { "%.jpg", "%.png" },
         find_command = { "fd", "--type", "f", "--extension", "md" },
     })
 end, { desc = "Find notes in vault" })
@@ -61,7 +61,7 @@ vim.keymap.set("n", "<leader>zg", function()
     require("telescope.builtin").live_grep({
         prompt_title = "Search Notes Content",
         cwd = "~/second-brain",
-        file_ignore_patterns = {"%.jpg", "%.png"},
+        file_ignore_patterns = { "%.jpg", "%.png" },
     })
 end, { desc = "Search notes content" })
 
@@ -99,3 +99,18 @@ vim.keymap.set("n", "<leader>mv", function()
         end
     end
 end, { desc = "Move current file" })
+
+-- Git account management
+local git_account = require("datakai.utils.git_account")
+vim.keymap.set("n", "<leader>ga", git_account.switch_account, { desc = "Switch Git account" })
+vim.keymap.set("n", "<leader>gw", git_account.create_worktree, { desc = "Create Git worktree" })
+
+
+-- Dotfiles management
+local dotfiles = require("datakai.utils.dotfiles")
+vim.keymap.set("n", "<leader>ds", dotfiles.status, { desc = "Dotfiles status" })
+vim.keymap.set("n", "<leader>da", dotfiles.add_current, { desc = "Dotfiles add current file" })
+vim.keymap.set("n", "<leader>dA", dotfiles.add_all, { desc = "Dotfiles add all changes" })
+vim.keymap.set("n", "<leader>dc", dotfiles.commit, { desc = "Dotfiles commit" })
+vim.keymap.set("n", "<leader>dp", dotfiles.push, { desc = "Dotfiles push" })
+vim.keymap.set("n", "<leader>dl", dotfiles.list_files, { desc = "Dotfiles list tracked files" })

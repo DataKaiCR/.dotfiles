@@ -196,25 +196,11 @@ M.create_note_in_folder = function(base_folder, prompt_title, template_name)
                             -- Remove any duplicate title headers or headers before frontmatter
                             local content = vim.api.nvim_buf_get_lines(0, 0, -1, false)
                             local final_content = {}
-                            local in_frontmatter = false
-                            local frontmatter_started = false
-                            local frontmatter_ended = false
                             local title_found = false
 
                             for i, line in ipairs(content) do
-                                -- Track frontmatter bounds
-                                if line == "---" then
-                                    if not frontmatter_started then
-                                        frontmatter_started = true
-                                        in_frontmatter = true
-                                    else
-                                        frontmatter_ended = true
-                                        in_frontmatter = false
-                                    end
-                                    table.insert(final_content, line)
-                                elseif line:match("^# " .. title .. "$") then
-                                    -- Skip title headers before frontmatter
-                                    if frontmatter_ended and not title_found then
+                                if line:match("^# " .. title .. "$") then
+                                    if not title_found then
                                         title_found = true
                                         table.insert(final_content, line)
                                     end
@@ -223,7 +209,6 @@ M.create_note_in_folder = function(base_folder, prompt_title, template_name)
                                     table.insert(final_content, line)
                                 end
                             end
-
                             -- Only update if we found and removed duplicates
                             if #final_content ~= #content then
                                 vim.api.nvim_buf_set_lines(0, 0, -1, false, final_content)
