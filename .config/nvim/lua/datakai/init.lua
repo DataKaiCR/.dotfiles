@@ -1,6 +1,7 @@
 require('datakai.lazy_init')
 require('datakai.remap')
 require('datakai.set')
+require('datakai.utils.markdown').setup()
 
 local augroup = vim.api.nvim_create_augroup
 local DataKaiGroup = augroup('DataKai', {})
@@ -42,7 +43,7 @@ autocmd('LspAttach', {
         vim.keymap.set('n', '<leader>vrr', function() vim.lsp.buf.references() end, opts)
         vim.keymap.set('n', '<leader>vrn', function() vim.lsp.buf.rename() end, opts)
         vim.keymap.set('i', '<C-h>', function() vim.lsp.buf.signature_help() end, opts)
-        vim.keymap.set({'n', 'x'}, '<F3>', function() vim.lsp.buf.format({async = true}) end, opts)
+        vim.keymap.set({ 'n', 'x' }, '<F3>', function() vim.lsp.buf.format({ async = true }) end, opts)
     end
 
 })
@@ -51,3 +52,8 @@ vim.g.netrw_browse_split = 0
 vim.g.netrw_banner = 0
 vim.g.netrw_winsize = 25
 
+
+vim.opt.conceallevel = 2
+vim.g.markdown_fenced_languages = {
+    'bash', 'javascript', 'js=javascript', 'python', 'html', 'css', 'rust', 'go'
+}
