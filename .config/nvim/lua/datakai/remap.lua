@@ -102,7 +102,7 @@ end, { desc = "Move current file" })
 
 -- Git account management
 local git_account = require("datakai.utils.git_account")
-vim.keymap.set("n", "<leader>ga", git_account.switch_account, { desc = "Switch Git account" })
+vim.keymap.set("n", "<leader>gC", git_account.switch_account, { desc = "Switch Git account" })
 vim.keymap.set("n", "<leader>gw", git_account.create_worktree, { desc = "Create Git worktree" })
 
 
