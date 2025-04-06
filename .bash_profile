@@ -30,3 +30,4 @@ export XDG_CACHE_HOME="$HOME/.cache"
 if [ -z "$SSH_AUTH_SOCK" ] ; then
     eval "$(ssh-agent -s)" > /dev/null
 fi
+. "/home/wmhstecher/.deno/env"

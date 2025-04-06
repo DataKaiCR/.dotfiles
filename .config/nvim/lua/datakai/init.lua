@@ -1,7 +1,7 @@
 require('datakai.lazy_init')
 require('datakai.remap')
 require('datakai.set')
-require('datakai.utils.markdown').setup()
+require('datakai.utils.markdown_tools').setup()
 require('datakai.utils.git_dotfiles_keymaps')
 
 

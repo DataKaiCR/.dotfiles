@@ -22,3 +22,6 @@ export EDITOR="nvim"
 export VISUAL="nvim"
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# added by Snowflake SnowSQL installer
+export PATH=/home/wmhstecher/bin:$PATH
