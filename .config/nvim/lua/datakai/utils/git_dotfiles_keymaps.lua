@@ -1,3 +1,6 @@
+-- git_dotfiles_keymaps.lua - Dedicated keymaps for git and dotfiles management
+-- This module should be required from your init.lua
+
 local M = {}
 
 -- Setup function to initialize all keymaps
@@ -13,22 +16,19 @@ M.setup = function()
     vim.keymap.set("n", "<leader>dA", dotfiles.add_all, { desc = "Dotfiles add all changes" })
     vim.keymap.set("n", "<leader>dc", dotfiles.commit, { desc = "Dotfiles commit" })
     vim.keymap.set("n", "<leader>dp", dotfiles.push, { desc = "Dotfiles push" })
-    vim.keymap.set("n", "<leader>du", dotfiles.pull, { desc = "Dotfiles pull" })
-    vim.keymap.set("n", "<leader>dl", dotfiles.list_files, { desc = "Dotfiles list tracked files" })
-    vim.keymap.set("n", "<leader>dh", dotfiles.log, { desc = "Dotfiles commit history" })
 
-    -- Git account management
-    vim.keymap.set("n", "<leader>gC", git_account.switch_account, { desc = "Switch Git account" })
-    vim.keymap.set("n", "<leader>gL", git_account.list_accounts, { desc = "List Git accounts" })
-    vim.keymap.set("n", "<leader>gA", git_account.add_account, { desc = "Add Git account" })
-    vim.keymap.set("n", "<leader>gR", git_account.remove_account, { desc = "Remove Git account" })
-    vim.keymap.set("n", "<leader>gS", git_account.list_ssh_hosts, { desc = "List SSH hosts" })
-    vim.keymap.set("n", "<leader>gE", git_account.edit_ssh_config, { desc = "Edit SSH config" })
+    -- Git account management - uses ga prefix
+    vim.keymap.set("n", "<leader>gas", git_account.switch_account, { desc = "Switch Git account" })
+    vim.keymap.set("n", "<leader>gal", git_account.list_accounts, { desc = "List Git accounts" })
+    vim.keymap.set("n", "<leader>gaa", git_account.add_account, { desc = "Add Git account" })
+    vim.keymap.set("n", "<leader>gar", git_account.remove_account, { desc = "Remove Git account" })
+    vim.keymap.set("n", "<leader>gah", git_account.list_ssh_hosts, { desc = "List SSH hosts" })
+    vim.keymap.set("n", "<leader>gae", git_account.edit_ssh_config, { desc = "Edit SSH config" })
 
     -- Git repository and worktree management
-    vim.keymap.set("n", "<leader>gi", git_account.init_repo, { desc = "Init Git repo with account" })
-    vim.keymap.set("n", "<leader>gw", git_account.create_worktree, { desc = "Create Git worktree" })
-    vim.keymap.set("n", "<leader>gW", git_account.list_worktrees, { desc = "List Git worktrees" })
+    vim.keymap.set("n", "<leader>gai", git_account.init_repo, { desc = "Init Git repo with account" })
+    vim.keymap.set("n", "<leader>gaw", git_account.create_worktree, { desc = "Create Git worktree" })
+    vim.keymap.set("n", "<leader>gaW", git_account.list_worktrees, { desc = "List Git worktrees" })
 
     -- Additional git helpers
     vim.keymap.set("n", "<leader>gI", function()

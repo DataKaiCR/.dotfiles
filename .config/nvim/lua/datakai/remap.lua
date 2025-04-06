@@ -1,5 +1,3 @@
--- Set Leader key to space
-
 vim.g.mapleader = " "
 
 -- Disable space key default behavior
