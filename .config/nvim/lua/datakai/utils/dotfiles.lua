@@ -239,7 +239,7 @@ end
 
 -- Add all changes to dotfiles
 M.add_all = function()
-    local output, exit_code = M.run_cmd("add -u")
+    local output, exit_code = M.run_cmd("add -A")
 
     if exit_code == 0 then
         vim.notify("Added all changed files to dotfiles", vim.log.levels.INFO)
@@ -257,6 +257,25 @@ M.add_all = function()
     else
         vim.notify("Failed to add all files\n" .. output, vim.log.levels.ERROR)
         return false
+    end
+end
+
+-- Remove a file from dotfiles tracking
+M.remove_file = function(file_path)
+    if not file_path or file_path == "" then
+        file_path = vim.fn.input("File to remove: ")
+    end
+
+    if file_path == "" then
+        vim.notify("No file specified", vim.log.levels.WARN)
+        return false
+    end
+
+    local output = M.run_cmd("rm " .. vim.fn.shellescape(file_path))
+    if output ~= "" then
+        vim.notify(output, vim.log.levels.WARN)
+    else
+        vim.notify("Removed " .. file_path .. " from dotfiles", vim.log.levels.INFO)
     end
 end
 

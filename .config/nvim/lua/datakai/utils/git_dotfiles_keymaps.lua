@@ -14,6 +14,7 @@ M.setup = function()
     vim.keymap.set("n", "<leader>ds", dotfiles.status, { desc = "Dotfiles status" })
     vim.keymap.set("n", "<leader>da", dotfiles.add_current, { desc = "Dotfiles add current file" })
     vim.keymap.set("n", "<leader>dA", dotfiles.add_all, { desc = "Dotfiles add all changes" })
+    vim.keymap.set("n", "<leader>dr", dotfiles.remove_file, { desc = "Dotfiles remove file" })
     vim.keymap.set("n", "<leader>dc", dotfiles.commit, { desc = "Dotfiles commit" })
     vim.keymap.set("n", "<leader>dp", dotfiles.push, { desc = "Dotfiles push" })
 
