@@ -172,7 +172,8 @@ M.create_git_hook = function(hook_name, content)
     end
 
     local hook_path = root ..
-    platform.get_separator() .. ".git" .. platform.get_separator() .. "hooks" .. platform.get_separator() .. hook_name
+        platform.get_separator() ..
+        ".git" .. platform.get_separator() .. "hooks" .. platform.get_separator() .. hook_name
 
     -- Create hooks directory if needed
     local hooks_dir = root .. platform.get_separator() .. ".git" .. platform.get_separator() .. "hooks"
@@ -398,5 +399,4 @@ M.lfs_track = function(pattern)
         return exit_code == 0
     end
 end
-
 return M

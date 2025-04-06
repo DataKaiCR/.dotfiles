@@ -32,11 +32,12 @@ vim.keymap.set("n", "<leader>nf", function()
     end
 end, { desc = "Create new file in current directory" })
 
--- Function to move files
+-- Function to move files with dotfiles integration
 vim.keymap.set("n", "<leader>mv", function()
     local current_file = vim.fn.expand("%:p")
     local current_dir = vim.fn.expand("%:p:h")
     local current_name = vim.fn.expand("%:t")
+    local home_dir = vim.fn.expand("$HOME")
     local new_name = vim.fn.input("Move to: ", current_dir .. "/", "file")
 
     if new_name ~= "" and new_name ~= current_file then
@@ -54,10 +55,29 @@ vim.keymap.set("n", "<leader>mv", function()
             vim.cmd("write")
         end
 
-        -- Move the file using vim.loop (libuv) for better error handling
+        -- Check if this is a dotfile (under home directory)
+        local is_dotfile = current_file:find("^" .. home_dir) ~= nil
+        local old_relative = is_dotfile and current_file:sub(#home_dir + 2) or nil
+        local new_relative = is_dotfile and new_name:sub(#home_dir + 2) or nil
+
+        -- Move the file using os.rename
         local ok, err = os.rename(current_file, new_name)
 
         if ok then
+            -- Update dotfiles tracking if applicable
+            if is_dotfile then
+                -- Using system commands for git operations
+                if old_relative then
+                    vim.fn.system("git --git-dir=" ..
+                    home_dir .. "/.dotfiles/ --work-tree=" .. home_dir .. " rm " .. vim.fn.shellescape(old_relative))
+                end
+                if new_relative then
+                    vim.fn.system("git --git-dir=" ..
+                    home_dir .. "/.dotfiles/ --work-tree=" .. home_dir .. " add " .. vim.fn.shellescape(new_relative))
+                    vim.notify("Dotfile moved and tracking updated", vim.log.levels.INFO)
+                end
+            end
+
             -- Edit the new file
             vim.cmd("edit " .. vim.fn.fnameescape(new_name))
             vim.notify("File moved to " .. new_name, vim.log.levels.INFO)

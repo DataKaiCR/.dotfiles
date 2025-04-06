@@ -179,6 +179,9 @@ alias gd="git diff"
 alias gb="git branch"
 alias glog="git log --oneline --graph --decorate"
 
+# Dotfiles shortcuts
+alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+
 # Neovim shortcuts
 alias v="nvim"
 alias vi="nvim"
