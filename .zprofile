@@ -21,6 +21,9 @@ fi
 export EDITOR="nvim"
 export VISUAL="nvim"
 
+# Set XDG paths
+export XDG_CONFIG_HOME="$HOME/.config"
+
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # added by Snowflake SnowSQL installer
