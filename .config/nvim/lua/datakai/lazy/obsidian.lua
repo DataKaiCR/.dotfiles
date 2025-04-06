@@ -5,10 +5,10 @@ return {
         "nvim-lua/plenary.nvim",
         "hrsh7th/nvim-cmp",
     },
-    event = {
-        "BufReadPre *.md",
-        "BufNewFile *.md",
-    },
+    -- Load the plugin immediately rather than just on markdown files
+    -- This ensures commands are available immediately when launching Neovim
+    lazy = false,  -- Load immediately instead of lazy-loading
+    priority = 50, -- Give it a higher priority for faster loading
     config = function()
         -- Require the note manager module
         local note_manager = require("datakai.utils.note_manager")
@@ -79,6 +79,10 @@ return {
                         return "area-" .. timestamp .. "-" .. suffix
                     elseif vim.g.current_note_type == "resource" then
                         return "resource-" .. timestamp .. "-" .. suffix
+                    elseif vim.g.current_note_type == "input" then
+                        return "input-" .. timestamp .. "-" .. suffix
+                    elseif vim.g.current_note_type == "output" then
+                        return "output-" .. timestamp .. "-" .. suffix
                     end
                 end
 
@@ -87,7 +91,6 @@ return {
             end,
             -- Disable frontmatter
             disable_frontmatter = true,
-            -- Customize the frontmatter data for all note types
             -- Customize the frontmatter data for all note types
             note_frontmatter_func = function(note)
                 -- Start with the basic fields
@@ -121,136 +124,18 @@ return {
 
                 return out
             end,
-            -- Key mappings for different note types
-            mappings = {
-                -- Basic commands using direct Vim commands
-                ["<leader>zn"] = {
-                    action = function()
-                        -- Set the note type
-                        vim.g.current_note_type = "note"
-                        local title = vim.fn.input("Note title: ")
-                        if title ~= "" then
-                            local cmd = string.format("ObsidianNew %s", title)
-                            vim.cmd(cmd)
-                        else
-                            vim.cmd("ObsidianNew")
-                        end
-                    end,
-                    desc = "Create new note in inbox"
-                },
-                ["<leader>zo"] = {
-                    action = function() vim.cmd("ObsidianFollowLink") end,
-                    desc = "Open/follow link"
-                },
-                ["<leader>zt"] = {
-                    action = function() vim.cmd("ObsidianTemplate") end,
-                    desc = "Insert template"
-                },
-                ["<leader>zd"] = {
-                    action = function()
-                        -- Set the note type
-                        vim.g.current_note_type = "daily"
-                        vim.cmd("ObsidianToday")
-                    end,
-                    desc = "Create/open daily note"
-                },
-                ["<leader>zs"] = {
-                    action = function() vim.cmd("ObsidianSearch") end,
-                    desc = "Search in vault"
-                },
-                -- Custom commands using the note manager module
-                ["<leader>zp"] = {
-                    action = function()
-                        -- Set the note type
-                        vim.g.current_note_type = "project"
-                        note_manager.create_note_in_folder("10-projects", "Select project folder:", "project")
-                    end,
-                    desc = "Create note in Projects folder"
-                },
-                ["<leader>za"] = {
-                    action = function()
-                        -- Set the note type
-                        vim.g.current_note_type = "area"
-                        note_manager.create_note_in_folder("20-areas", "Select area folder:", "area")
-                    end,
-                    desc = "Create note in Areas folder"
-                },
-                ["<leader>zr"] = {
-                    action = function()
-                        -- Set the note type
-                        vim.g.current_note_type = "resource"
-                        note_manager.create_note_in_folder("30-resources", "Select resource folder:", "resource")
-                    end,
-                    desc = "Create note in Resources folder"
-                },
-                ["<leader>zv"] = {
-                    action = function()
-                        -- Set the note type
-                        vim.g.current_note_type = "archive"
-                        note_manager.create_note_in_folder("40-archive", "Select archive folder:", "archive")
-                    end,
-                    desc = "Create note in Archive folder"
-                },
-                -- For Zettelkasten notes, use timestamp ID + title for uniqueness and readability
-                ["<leader>zz"] = {
-                    action = function()
-                        -- Set the note type
-                        vim.g.current_note_type = "zettel"
-                        local title = vim.fn.input("Zettelkasten note title: ")
-                        if title ~= "" then
-                            local timestamp = os.date("%Y%m%d%H%M%S")
-                            local zettel_title = timestamp .. " - " .. title
-                            local cmd = string.format("ObsidianNew 50-zettelkasten/%s", title)
-                            vim.cmd(cmd)
-                            -- Apply Zettelkasten template
-                            vim.defer_fn(function()
-                                vim.cmd("ObsidianTemplate zettelkasten")
-                                -- Remove any duplicate title headers or headers before frontmatter
-                                local content = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-                                local final_content = {}
-                                local in_frontmatter = false
-                                local frontmatter_started = false
-                                local frontmatter_ended = false
-                                local title_found = false
 
-                                for i, line in ipairs(content) do
-                                    -- Track frontmatter bounds
-                                    if line == "---" then
-                                        if not frontmatter_started then
-                                            frontmatter_started = true
-                                            in_frontmatter = true
-                                        else
-                                            frontmatter_ended = true
-                                            in_frontmatter = false
-                                        end
-                                        table.insert(final_content, line)
-                                    elseif line:match("^# " .. title .. "$") then
-                                        -- Skip title headers before frontmatter
-                                        if frontmatter_ended and not title_found then
-                                            title_found = true
-                                            table.insert(final_content, line)
-                                        end
-                                        -- Skip duplicate title headers
-                                    else
-                                        table.insert(final_content, line)
-                                    end
-                                end
+            -- Instead of mappings here, we'll setup keymaps separately
+            mappings = {},
 
-                                -- Only update if we found and removed duplicates
-                                if #final_content ~= #content then
-                                    vim.api.nvim_buf_set_lines(0, 0, -1, false, final_content)
-                                end
-                            end, 100)
-                        end
-                    end,
-                    desc = "Create Zettelkasten note"
-                },
-            },
             -- Required for search and completion
             completion = {
                 nvim_cmp = true,
                 min_chars = 2,
             },
         })
+
+        -- Setup keymaps from our dedicated module
+        require("datakai.utils.obsidian_keymaps").setup()
     end,
 }

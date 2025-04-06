@@ -2,6 +2,8 @@ require('datakai.lazy_init')
 require('datakai.remap')
 require('datakai.set')
 require('datakai.utils.markdown').setup()
+require('datakai.utils.git_dotfiles_keymaps')
+
 
 local augroup = vim.api.nvim_create_augroup
 local DataKaiGroup = augroup('DataKai', {})

@@ -15,20 +15,9 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 
-
-
-
 vim.keymap.set("n", "<leader><leader>", function()
     vim.cmd('so')
 end)
-
--- Quick note creation
--- vim.keymap.set('n', '<leader>zn', ":ObsidianNew<CR>", { desc = "New Zettel" })
--- Search notes
--- vim.keymap.set('n', '<leader>zf', ":ObsidianSearch<CR>", { desc = "Find Zettels" })
--- Open daily note
--- vim.keymap.set('n', '<leader>zt', ":ObsidianToday<CR>", { desc = "Today's Note" })
--- Follow link under cursor--
 
 -- Clipboard shortcuts
 vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Copy to system clipboard" })
@@ -44,26 +33,6 @@ vim.keymap.set("n", "<leader>nf", function()
         vim.cmd("edit " .. filename)
     end
 end, { desc = "Create new file in current directory" })
-
--- Add to your remap.lua file or create a new file for custom functions
--- Function to find and open any note in the vault
-vim.keymap.set("n", "<leader>zf", function()
-    require("telescope.builtin").find_files({
-        prompt_title = "Find Notes",
-        cwd = "~/second-brain",
-        file_ignore_patterns = { "%.jpg", "%.png" },
-        find_command = { "fd", "--type", "f", "--extension", "md" },
-    })
-end, { desc = "Find notes in vault" })
-
--- Function to grep content across all notes
-vim.keymap.set("n", "<leader>zg", function()
-    require("telescope.builtin").live_grep({
-        prompt_title = "Search Notes Content",
-        cwd = "~/second-brain",
-        file_ignore_patterns = { "%.jpg", "%.png" },
-    })
-end, { desc = "Search notes content" })
 
 -- Function to move files
 vim.keymap.set("n", "<leader>mv", function()
@@ -102,6 +71,7 @@ end, { desc = "Move current file" })
 
 -- Git account management
 local git_account = require("datakai.utils.git_account")
+vim.keymap.set("n", "<leader>gi", git_account.init_repo, { desc = "Init Git repo with account" })
 vim.keymap.set("n", "<leader>gC", git_account.switch_account, { desc = "Switch Git account" })
 vim.keymap.set("n", "<leader>gw", git_account.create_worktree, { desc = "Create Git worktree" })
 
