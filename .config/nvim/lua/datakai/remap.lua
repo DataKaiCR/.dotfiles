@@ -68,19 +68,3 @@ vim.keymap.set("n", "<leader>mv", function()
         end
     end
 end, { desc = "Move current file" })
-
--- Git account management
-local git_account = require("datakai.utils.git_account")
-vim.keymap.set("n", "<leader>gi", git_account.init_repo, { desc = "Init Git repo with account" })
-vim.keymap.set("n", "<leader>gC", git_account.switch_account, { desc = "Switch Git account" })
-vim.keymap.set("n", "<leader>gw", git_account.create_worktree, { desc = "Create Git worktree" })
-
-
--- Dotfiles management
-local dotfiles = require("datakai.utils.dotfiles")
-vim.keymap.set("n", "<leader>ds", dotfiles.status, { desc = "Dotfiles status" })
-vim.keymap.set("n", "<leader>da", dotfiles.add_current, { desc = "Dotfiles add current file" })
-vim.keymap.set("n", "<leader>dA", dotfiles.add_all, { desc = "Dotfiles add all changes" })
-vim.keymap.set("n", "<leader>dc", dotfiles.commit, { desc = "Dotfiles commit" })
-vim.keymap.set("n", "<leader>dp", dotfiles.push, { desc = "Dotfiles push" })
-vim.keymap.set("n", "<leader>dl", dotfiles.list_files, { desc = "Dotfiles list tracked files" })
