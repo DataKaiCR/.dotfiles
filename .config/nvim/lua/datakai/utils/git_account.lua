@@ -1,11 +1,17 @@
+-- Enhanced git_account.lua with Cross-Platform Support
+-- Manages multiple Git identities across systems
+
 local M = {}
 
--- Default configuration
+-- Import cross-platform utilities
+local platform = require('datakai.utils.platform')
+
+-- Default configuration with platform-aware paths
 M.config = {
-    accounts_file = os.getenv("HOME") .. "/.config/nvim/git_accounts.lua",
-    ssh_config_path = os.getenv("HOME") .. "/.ssh/config",
-    templates_dir = os.getenv("HOME") .. "/.config/git/templates",
-    hooks_dir = os.getenv("HOME") .. "/.config/git/hooks"
+    accounts_file = platform.normalize_path(platform.get_home() .. "/.config/nvim/git_accounts.lua"),
+    ssh_config_path = platform.normalize_path(platform.get_home() .. "/.ssh/config"),
+    templates_dir = platform.normalize_path(platform.get_home() .. "/.config/git/templates"),
+    hooks_dir = platform.normalize_path(platform.get_home() .. "/.config/git/hooks")
 }
 
 -- Empty accounts table - will be populated from accounts file if it exists
@@ -40,7 +46,9 @@ M.parse_ssh_config = function()
             if current_host then
                 local identity_file = line:match("^%s*IdentityFile%s+(.+)$")
                 if identity_file then
-                    ssh_hosts[current_host].identity_file = identity_file:gsub("^~", os.getenv("HOME"))
+                    -- Replace ~ with home directory and normalize path
+                    identity_file = identity_file:gsub("^~", platform.get_home())
+                    ssh_hosts[current_host].identity_file = platform.normalize_path(identity_file)
                 end
 
                 -- Look for other useful options like User
@@ -91,14 +99,7 @@ end
 
 -- Helper function to run git commands and handle errors
 M.run_git_cmd = function(cmd, silent)
-    local output = vim.fn.system("git " .. cmd)
-    local exit_code = vim.v.shell_error
-
-    if not silent and exit_code ~= 0 then
-        vim.notify("Git command failed: " .. cmd .. "\n" .. output, vim.log.levels.ERROR)
-    end
-
-    return output, exit_code
+    return platform.system("git " .. cmd, silent)
 end
 
 -- Get current git identity
@@ -139,14 +140,21 @@ end
 M.configure_git_ssh = function(account)
     if not account.ssh_host then return false end
 
-    -- Set core.sshCommand to use the SSH host
-    -- This uses SSH config for the host, including the identity file
-    local cmd = string.format("git config core.sshCommand 'ssh -F %s %s'",
-        vim.fn.shellescape(vim.fn.expand(M.config.ssh_config_path)),
-        account.ssh_host)
-
-    local exit_code = os.execute(cmd)
-    return exit_code == 0
+    -- Platform-specific SSH configuration
+    if platform.os == "windows" then
+        -- Windows Git has a different way to configure SSH
+        local cmd = string.format("git config core.sshCommand 'ssh -i %s'",
+            vim.fn.shellescape(account.ssh_key))
+        local exit_code = os.execute(cmd)
+        return exit_code == 0
+    else
+        -- Unix-like systems can use SSH_COMMAND in .git/config
+        local cmd = string.format("git config core.sshCommand 'ssh -F %s %s'",
+            vim.fn.shellescape(vim.fn.expand(M.config.ssh_config_path)),
+            account.ssh_host)
+        local exit_code = os.execute(cmd)
+        return exit_code == 0
+    end
 end
 
 -- Switch Git account
@@ -251,8 +259,8 @@ M.create_worktree = function()
 
     if branch == "" then return end
 
-    -- Get worktree path
-    local default_path = vim.fn.getcwd() .. "/../" .. branch
+    -- Get worktree path - use platform-specific path handling
+    local default_path = platform.normalize_path(vim.fn.getcwd() .. "/../" .. branch)
     local path = vim.fn.input({
         prompt = "Worktree path: ",
         default = default_path,
@@ -260,6 +268,9 @@ M.create_worktree = function()
     })
 
     if path == "" then return end
+
+    -- Normalize path for the OS
+    path = platform.normalize_path(path)
 
     -- Get account names
     local account_names = {}
@@ -287,22 +298,36 @@ M.create_worktree = function()
                 return
             end
 
-            -- Configure client-specific Git settings
-            local cmds = {
-                string.format("cd %s", vim.fn.shellescape(path)),
-                string.format("git config user.name '%s'", account.name),
-                string.format("git config user.email '%s'", account.email)
-            }
+            -- Configure client-specific Git settings - use platform-specific commands
+            local cmds = {}
+
+            if platform.os == "windows" then
+                -- Windows commands
+                table.insert(cmds, string.format("cd /d %s", vim.fn.shellescape(path)))
+            else
+                -- Unix commands
+                table.insert(cmds, string.format("cd %s", vim.fn.shellescape(path)))
+            end
+
+            table.insert(cmds, string.format("git config user.name '%s'", account.name))
+            table.insert(cmds, string.format("git config user.email '%s'", account.email))
 
             -- Configure SSH if host is specified
             if account.ssh_host then
-                table.insert(cmds, string.format("git config core.sshCommand 'ssh -F %s %s'",
-                    vim.fn.shellescape(vim.fn.expand(M.config.ssh_config_path)),
-                    account.ssh_host))
+                if platform.os == "windows" then
+                    -- Windows SSH config
+                    table.insert(cmds, string.format("git config core.sshCommand 'ssh -i %s'",
+                        vim.fn.shellescape(account.ssh_key)))
+                else
+                    -- Unix SSH config
+                    table.insert(cmds, string.format("git config core.sshCommand 'ssh -F %s %s'",
+                        vim.fn.shellescape(vim.fn.expand(M.config.ssh_config_path)),
+                        account.ssh_host))
+                end
             end
 
             -- Run commands
-            local cmd = table.concat(cmds, " && ")
+            local cmd = table.concat(cmds, platform.os == "windows" and " && " or " && ")
             vim.fn.system(cmd)
 
             -- Success message
@@ -348,8 +373,14 @@ M.init_repo = function()
 
     -- Ask for template if available
     local templates = {}
-    if vim.fn.isdirectory(vim.fn.expand(M.config.templates_dir)) == 1 then
-        local handle = io.popen("ls -1 " .. vim.fn.shellescape(vim.fn.expand(M.config.templates_dir)))
+    local templates_dir = vim.fn.expand(M.config.templates_dir)
+
+    if vim.fn.isdirectory(templates_dir) == 1 then
+        local command = platform.os == "windows"
+            and "dir /b " .. vim.fn.shellescape(templates_dir)
+            or "ls -1 " .. vim.fn.shellescape(templates_dir)
+
+        local handle = io.popen(command)
         if handle then
             for line in handle:lines() do
                 table.insert(templates, line)
@@ -405,20 +436,39 @@ M.init_repo = function()
 
             -- Apply template if selected
             if selected_template then
-                local template_path = M.config.templates_dir .. "/" .. selected_template
+                local template_path = M.config.templates_dir .. platform.get_separator() .. selected_template
 
                 -- Copy template files
                 if vim.fn.isdirectory(vim.fn.expand(template_path)) == 1 then
-                    vim.fn.system("cp -r " .. vim.fn.shellescape(vim.fn.expand(template_path)) .. "/* .")
+                    -- Platform-specific copy command
+                    local copy_cmd = platform.os == "windows"
+                        and "xcopy /E /Y " .. vim.fn.shellescape(vim.fn.expand(template_path)) .. "\\* ."
+                        or "cp -r " .. vim.fn.shellescape(vim.fn.expand(template_path)) .. "/* ."
+
+                    vim.fn.system(copy_cmd)
                     vim.notify("Applied template: " .. selected_template, vim.log.levels.INFO)
                 end
             end
 
             -- Add git hooks if available
-            if vim.fn.isdirectory(vim.fn.expand(M.config.hooks_dir)) == 1 then
-                vim.fn.system("mkdir -p .git/hooks")
-                vim.fn.system("cp -r " .. vim.fn.shellescape(vim.fn.expand(M.config.hooks_dir)) .. "/* .git/hooks/")
-                vim.fn.system("chmod +x .git/hooks/*")
+            local hooks_dir = vim.fn.expand(M.config.hooks_dir)
+            if vim.fn.isdirectory(hooks_dir) == 1 then
+                -- Ensure .git/hooks exists
+                local git_hooks_dir = ".git/hooks"
+                platform.ensure_directory(git_hooks_dir)
+
+                -- Platform-specific copy command
+                local copy_cmd = platform.os == "windows"
+                    and "xcopy /E /Y " .. vim.fn.shellescape(hooks_dir) .. "\\* " .. git_hooks_dir .. "\\"
+                    or "cp -r " .. vim.fn.shellescape(hooks_dir) .. "/* " .. git_hooks_dir .. "/"
+
+                vim.fn.system(copy_cmd)
+
+                -- Make hooks executable on Unix-like systems
+                if platform.os ~= "windows" then
+                    vim.fn.system("chmod +x " .. git_hooks_dir .. "/*")
+                end
+
                 vim.notify("Added git hooks from " .. M.config.hooks_dir, vim.log.levels.INFO)
             end
 
@@ -590,7 +640,8 @@ M.save_accounts = function()
     -- Create directory if it doesn't exist
     local dir = vim.fn.fnamemodify(accounts_file, ":h")
     if vim.fn.isdirectory(dir) == 0 then
-        vim.fn.mkdir(dir, "p")
+        -- Use platform-specific directory creation
+        platform.ensure_directory(dir)
     end
 
     -- Format accounts as Lua code
@@ -632,6 +683,123 @@ M.save_accounts = function()
         vim.notify("Saved accounts to " .. accounts_file, vim.log.levels.INFO)
     else
         vim.notify("Failed to save accounts to " .. accounts_file, vim.log.levels.ERROR)
+    end
+end
+
+-- Edit SSH config (opens the config file for editing)
+M.edit_ssh_config = function()
+    -- Check if SSH config exists
+    local config_path = vim.fn.expand(M.config.ssh_config_path)
+
+    -- Create directory if it doesn't exist
+    local dir = vim.fn.fnamemodify(config_path, ":h")
+    if vim.fn.isdirectory(dir) == 0 then
+        platform.ensure_directory(dir)
+    end
+
+    if vim.fn.filereadable(config_path) ~= 1 then
+        -- Create empty config if it doesn't exist
+        local file = io.open(config_path, "w")
+        if file then
+            file:write("# SSH Configuration File\n")
+            file:write("# Created by git_account.lua\n\n")
+            file:close()
+        else
+            vim.notify("Failed to create SSH config file", vim.log.levels.ERROR)
+            return
+        end
+    end
+
+    -- Open the file for editing
+    vim.cmd("edit " .. vim.fn.fnameescape(config_path))
+
+    -- Add autocmd to reload SSH config when the file is written
+    vim.api.nvim_create_autocmd("BufWritePost", {
+        pattern = vim.fn.fnameescape(config_path),
+        callback = function()
+            M.ssh_hosts = M.parse_ssh_config()
+            vim.notify("SSH config reloaded", vim.log.levels.INFO)
+
+            -- Update account SSH information
+            for name, account in pairs(M.accounts) do
+                if account.ssh_host and M.ssh_hosts[account.ssh_host] then
+                    account.ssh_key = M.ssh_hosts[account.ssh_host].identity_file
+                    account.ssh_user = M.ssh_hosts[account.ssh_host].user
+                end
+            end
+        end,
+        once = false
+    })
+
+    vim.notify("Editing SSH config. Save to reload configuration.", vim.log.levels.INFO)
+end
+
+-- Generate a sample SSH config template
+M.generate_ssh_template = function()
+    local config_path = vim.fn.expand(M.config.ssh_config_path)
+
+    -- Check if file already exists
+    if vim.fn.filereadable(config_path) == 1 then
+        if vim.fn.confirm("SSH config already exists. Overwrite with template?", "&Yes\n&No") ~= 1 then
+            return
+        end
+    end
+
+    -- Create directory if needed
+    local dir = vim.fn.fnamemodify(config_path, ":h")
+    if vim.fn.isdirectory(dir) == 0 then
+        platform.ensure_directory(dir)
+    end
+
+    -- Generate template content
+    local lines = {
+        "# SSH Configuration File",
+        "# Generated by git_account.lua",
+        "",
+        "# Default settings for all hosts",
+        "Host *",
+        "    ServerAliveInterval 60",
+        "    ServerAliveCountMax 30",
+        "    AddKeysToAgent yes",
+        "    IdentitiesOnly yes",
+        "",
+        "# Personal GitHub account",
+        "Host github.com-personal",
+        "    HostName github.com",
+        "    User git",
+        "    IdentityFile ~/.ssh/id_personal",
+        "",
+        "# Work GitHub account",
+        "Host github.com-work",
+        "    HostName github.com",
+        "    User git",
+        "    IdentityFile ~/.ssh/id_work",
+        "",
+        "# GitLab account",
+        "Host gitlab.com",
+        "    IdentityFile ~/.ssh/id_gitlab",
+        "",
+        "# Example for a custom Git server",
+        "Host git.example.com",
+        "    User git",
+        "    IdentityFile ~/.ssh/id_example",
+        "    Port 2222",
+        "",
+        "# Add your custom hosts below",
+        ""
+    }
+
+    -- Write to file
+    local file = io.open(config_path, "w")
+    if file then
+        file:write(table.concat(lines, "\n"))
+        file:close()
+        vim.notify("SSH config template generated at " .. config_path, vim.log.levels.INFO)
+
+        -- Open the file for editing
+        vim.cmd("edit " .. vim.fn.fnameescape(config_path))
+    else
+        vim.notify("Failed to create SSH config template", vim.log.levels.ERROR)
     end
 end
 
@@ -805,52 +973,6 @@ M.list_worktrees = function()
     vim.api.nvim_buf_set_keymap(bufnr, "n", "c",
         [[<cmd>lua require('datakai.utils.git_account').create_worktree()<CR>]],
         { noremap = true, silent = true, desc = "Create worktree" })
-end
-
--- Edit SSH config (opens the config file for editing)
-M.edit_ssh_config = function()
-    -- Check if SSH config exists
-    local config_path = vim.fn.expand(M.config.ssh_config_path)
-    if vim.fn.filereadable(config_path) ~= 1 then
-        -- Create empty config if it doesn't exist
-        local dir = vim.fn.fnamemodify(config_path, ":h")
-        if vim.fn.isdirectory(dir) == 0 then
-            vim.fn.mkdir(dir, "p")
-        end
-
-        local file = io.open(config_path, "w")
-        if file then
-            file:write("# SSH Configuration File\n")
-            file:write("# Created by git_account.lua\n\n")
-            file:close()
-        else
-            vim.notify("Failed to create SSH config file", vim.log.levels.ERROR)
-            return
-        end
-    end
-
-    -- Open the file for editing
-    vim.cmd("edit " .. vim.fn.fnameescape(config_path))
-
-    -- Add autocmd to reload SSH config when the file is written
-    vim.api.nvim_create_autocmd("BufWritePost", {
-        pattern = vim.fn.fnameescape(config_path),
-        callback = function()
-            M.ssh_hosts = M.parse_ssh_config()
-            vim.notify("SSH config reloaded", vim.log.levels.INFO)
-
-            -- Update account SSH information
-            for name, account in pairs(M.accounts) do
-                if account.ssh_host and M.ssh_hosts[account.ssh_host] then
-                    account.ssh_key = M.ssh_hosts[account.ssh_host].identity_file
-                    account.ssh_user = M.ssh_hosts[account.ssh_host].user
-                end
-            end
-        end,
-        once = false
-    })
-
-    vim.notify("Editing SSH config. Save to reload configuration.", vim.log.levels.INFO)
 end
 
 -- Initialize the module with defaults
