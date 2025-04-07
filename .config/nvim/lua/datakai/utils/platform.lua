@@ -123,18 +123,19 @@ M.system = function(cmd, silent)
         cmd = "cmd.exe /c " .. cmd
     end
 
-    -- Execute the command
-    if not silent then
-        vim.cmd("echo 'Running: " .. cmd:gsub("'", "''") .. "'")
-    end
-
+    -- Execute the command silently
     output = vim.fn.system(cmd)
+    local exit_code = vim.v.shell_error
 
-    if not silent and vim.v.shell_error ~= 0 then
-        vim.cmd("echo 'Error: " .. output:gsub("'", "''") .. "'")
+    -- Only show output/errors if not silent
+    if not silent then
+        if exit_code ~= 0 then
+            -- Use vim.notify instead of vim.cmd to avoid quote escaping issues
+            vim.notify("Error executing command: " .. cmd .. "\n" .. output, vim.log.levels.ERROR)
+        end
     end
 
-    return output, vim.v.shell_error
+    return output, exit_code
 end
 
 -- Open a URL in the default browser

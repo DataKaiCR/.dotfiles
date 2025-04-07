@@ -1,0 +1,38 @@
+[user]
+    name = datakaicr
+    email = hstecher@datakai.net
+
+[core]
+    editor = nvim
+    excludesFile = ~/.config/git/ignore
+    autocrlf = input
+
+[init]
+    defaultBranch = main
+
+[color]
+    ui = auto
+
+[pull]
+    rebase = false
+
+[push]
+    default = simple
+
+[alias]
+    st = status
+    co = checkout
+    ci = commit
+    br = branch
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+    unstage = reset HEAD --
+
+[diff]
+    tool = vimdiff
+
+[merge]
+    tool = vimdiff
+    conflictstyle = diff3
+
+[credential]
+    helper = cache --timeout=3600
