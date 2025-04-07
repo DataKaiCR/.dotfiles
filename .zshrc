@@ -498,3 +498,4 @@ fi
 echo "Welcome back, $(whoami)! ($SYSTEM)"
 echo "Current directory: $(pwd)"
 echo "Today is $(date '+%A, %B %d, %Y')"
+. "/Users/hstecher/.deno/env"

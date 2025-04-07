@@ -340,3 +340,4 @@ if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
     esac
 fi
 . "/home/wmhstecher/.deno/env"
+. "/Users/hstecher/.deno/env"
