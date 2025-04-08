@@ -17,6 +17,8 @@ M.setup = function()
     vim.keymap.set("n", "<leader>dr", dotfiles.remove_file, { desc = "Dotfiles remove file" })
     vim.keymap.set("n", "<leader>dc", dotfiles.commit, { desc = "Dotfiles commit" })
     vim.keymap.set("n", "<leader>dp", dotfiles.push, { desc = "Dotfiles push" })
+    vim.keymap.set("n", "<leader>dl", dotfiles.pull, { desc = "Dotfiles pull" })
+    vim.keymap.set("n", "<leader>di", dotfiles.set_identity, { desc = "Set dotfiles identity" })
 
     -- Git account management - uses ga prefix
     vim.keymap.set("n", "<leader>gas", git_account.switch_account, { desc = "Switch Git account" })

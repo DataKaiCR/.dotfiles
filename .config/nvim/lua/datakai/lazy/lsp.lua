@@ -17,7 +17,7 @@ return {
                 'lua_ls',
                 'rust_analyzer',
                 'jsonls',
-                'ruff_lsp',
+                -- 'ruff_lsp',
                 'zls',
                 'powershell_es',
                 -- 'pyright',
@@ -28,7 +28,7 @@ return {
                 'yamlls',
                 'taplo',
                 'dockerls',
-                'metalls',
+                -- 'metalls',
                 'jedi_language_server'
             },
             handlers = {

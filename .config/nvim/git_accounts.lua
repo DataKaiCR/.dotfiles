@@ -7,9 +7,4 @@ return {
         email = "hstecher@datakai.net",
         ssh_host = "github.com",
     },
-    ["trulieve"] = {
-        name = "hstecher-trulieve",
-        email = "heinz.stecher@trulieve.com",
-        ssh_host = "github.com-trulieve",
-    },
 }
