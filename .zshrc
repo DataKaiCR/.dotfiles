@@ -135,14 +135,18 @@ if [[ "$SYSTEM" == "WSL" ]]; then
 else
     # Regular paths for macOS and Linux Mint
     alias ws="cd $HOME/workspace"
-    alias res="cd $HOME/resources"
-    alias brain="cd $HOME/second-brain"
-    alias pers="cd $HOME/personal"
+    alias pj="cd $HOME/projects"
+    alias rs="cd $HOME/resources"
+    alias br="cd $HOME/second-brain"
+    alias ps="cd $HOME/personal"
     alias dl="cd $HOME/downloads"
-    alias dat="cd $HOME/data"
-    alias scr="cd $HOME/scripts"
-    alias arch="cd $HOME/archives"
+    alias dt="cd $HOME/data"
+    alias sc="cd $HOME/scripts"
+    alias ak="cd $HOME/archives"
 fi
+
+# Custom projects
+alias pjtl="cd $HOME/projects/trulieve"
 
 # Quick directory traversal
 alias ..="cd .."
@@ -396,6 +400,7 @@ fi
 
 # ---------- Path Configurations ----------
 # Add local bin directories to PATH
+export PATH="$PATH:/usr/local/bin"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/scripts:$PATH"
 export PATH="$HOME/bin:$PATH"
@@ -494,8 +499,13 @@ if command -v tmux &>/dev/null && [[ -z "$TMUX" ]]; then
     fi
 fi
 
+# Starship prompt integration
+eval "$(starship init zsh)"
+
 # ---------- Welcome Message ----------
 echo "Welcome back, $(whoami)! ($SYSTEM)"
 echo "Current directory: $(pwd)"
 echo "Today is $(date '+%A, %B %d, %Y')"
 . "/Users/hstecher/.deno/env"
+
+

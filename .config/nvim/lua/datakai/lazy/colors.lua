@@ -15,8 +15,8 @@ return {
                 transparent = true,
                 terminal_colors = true,
                 styles = {
-                    comments = { italics = false },
-                    keyworks = { italics = false },
+                    comments = "NONE",
+                    keywords = "NONE",
 
                     sidebars = 'dark',
                     floats = 'dark',

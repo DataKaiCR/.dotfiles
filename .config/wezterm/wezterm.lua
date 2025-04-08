@@ -32,7 +32,7 @@ wezterm.on('gui-startup', function(cmd)
 end)
 
 -- Basic configuration
-config.color_scheme = 'Batman'
+config.color_scheme = 'Tokyo Night Storm'
 config.font = wezterm.font('Hack Nerd Font')
 config.font_size = 11
 

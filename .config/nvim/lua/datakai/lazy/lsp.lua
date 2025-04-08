@@ -13,24 +13,32 @@ return {
 
         require('mason').setup()
         require('mason-lspconfig').setup({
-            ensure_installed = { 
-                'lua_ls', 
+            ensure_installed = {
+                'lua_ls',
                 'rust_analyzer',
                 'jsonls',
-                --'ts_ls',
+                'ruff_lsp',
                 'zls',
                 'powershell_es',
-                'pyright',
-                'marksman'
+                -- 'pyright',
+                'marksman',
+                'sqlls',
+                -- 'gopls',
+                'bashls',
+                'yamlls',
+                'taplo',
+                'dockerls',
+                'metalls',
+                'jedi_language_server'
             },
             handlers = {
-                function (server_name) 
+                function(server_name)
                     require('lspconfig')[server_name].setup {}
                 end,
 
                 --                ['pyright'] = function()
                 --                    local on_attach = {}
-                --                    local capabilities = {} 
+                --                    local capabilities = {}
                 --                    local lspconfig = require('lspconfig')
                 --                    lspconfig.pyright.setup {
                 --                        -- on_attach = on_attach,
@@ -41,12 +49,32 @@ return {
             }
         })
 
-        --   require('mason-tool-installer').setup({
-        --       ensure_installed = {
-        --           'black',
-        --           'pylint',
-        --           'mypy',
-        --       }
-        --   })
+        -- require('mason-tool-installer').setup({
+        --     ensure_installed = {
+        --         'black',
+        --         'ruff',
+        --         'pyright',
+        --         'debugpy',
+        --         'lua-language-server',
+        --         'rust_analyzer',
+        --         'json-lsp',
+        --         'codelldb'
+        --     }
+        -- })
+        require('lspconfig').yamlls.setup {
+            settings = {
+                yaml = {
+                    schemas = {
+                        ["https://raw.githubusercontent.com/databricks/databricks-cli/main/databricks_cli/workspace/databricks.yaml"] = "/*databricks*.{yml,yaml}",
+                        ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
+                        ["https://raw.githubusercontent.com/docker/compose/master/compose/config/compose_spec.json"] = "*docker-compose*.{yml,yaml}",
+                        -- Add other schemas as needed
+                    },
+                    format = { enabled = true },
+                    validate = true,
+                    completion = true,
+                },
+            },
+        }
     end
 }
