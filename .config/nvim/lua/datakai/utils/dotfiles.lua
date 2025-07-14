@@ -555,62 +555,7 @@ M.init_repo = function()
     end
 end
 
--- Set dotfiles git identity using git_account
-M.set_identity = function()
-    -- Check if git_account module is available
-    local ok, git_account = pcall(require, "datakai.utils.git_account")
-    if not ok then
-        vim.notify("Git account module not available", vim.log.levels.ERROR)
-        return
-    end
 
-    -- Get account names
-    local account_names = {}
-    for name, _ in pairs(git_account.accounts) do
-        table.insert(account_names, name)
-    end
-    table.sort(account_names)
-
-    -- Show selection menu
-    vim.ui.select(account_names, {
-        prompt = "Select Git Account for Dotfiles:",
-    }, function(selected)
-        if selected then
-            local account = git_account.accounts[selected]
-
-            -- Set Git config for dotfiles
-            M.run_cmd("config user.name '" .. account.name .. "'")
-            M.run_cmd("config user.email '" .. account.email .. "'")
-
-            -- Configure SSH if host is specified
-            local ssh_configured = false
-            if account.ssh_host then
-                -- Set core.sshCommand to use the SSH host
-                local ssh_config_path = git_account.config.ssh_config_path
-                local cmd = string.format("config core.sshCommand 'ssh -F %s %s'",
-                    vim.fn.shellescape(vim.fn.expand(ssh_config_path)),
-                    account.ssh_host)
-
-                local _, exit_code = M.run_cmd(cmd)
-                ssh_configured = (exit_code == 0)
-            end
-
-            -- Get current config for confirmation
-            local name, _ = M.run_cmd("config user.name", true)
-            local email, _ = M.run_cmd("config user.email", true)
-
-            -- Confirmation message
-            local msg = "Dotfiles identity set to: " .. name:gsub("\n", "") ..
-                " <" .. email:gsub("\n", "") .. ">"
-
-            if ssh_configured then
-                msg = msg .. " (Using SSH host: " .. account.ssh_host .. ")"
-            end
-
-            vim.notify(msg, vim.log.levels.INFO)
-        end
-    end)
-end
 
 -- Add common dotfiles from templates based on detected OS
 M.add_common_files = function()

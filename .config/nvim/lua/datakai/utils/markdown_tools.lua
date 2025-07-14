@@ -153,9 +153,6 @@ function M.setup()
             -- Fix trailing spaces (careful with line breaks)
             vim.cmd([[silent! %s/\([^  ]\)\s\+$/\1/ge]])
 
-            -- Fix common markdown syntax issues
-            vim.cmd([[silent! %s/^\(#\+\)\([^ ]\)/\1 \2/ge]]) -- Space after # in headers
-
             -- Ensure single blank line between sections
             vim.cmd([[silent! %s/\(\n\n\)\n\+/\1/ge]])
 

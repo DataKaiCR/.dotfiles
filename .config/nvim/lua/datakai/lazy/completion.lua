@@ -9,10 +9,14 @@ return {
       "hrsh7th/cmp-nvim-lua",
       "L3MON4D3/LuaSnip",
       "saadparwaiz1/cmp_luasnip",
+      "rafamadriz/friendly-snippets",  -- Collection of snippets including Python
     },
     config = function()
       local cmp = require("cmp")
       local luasnip = require("luasnip")
+      
+      -- Load friendly-snippets
+      require("luasnip.loaders.from_vscode").lazy_load()
       
       cmp.setup({
         snippet = {
@@ -48,6 +52,7 @@ return {
         sources = cmp.config.sources({
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
+        }, {
           { name = 'buffer' },
           { name = 'path' },
         }),

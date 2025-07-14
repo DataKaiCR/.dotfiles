@@ -9,7 +9,7 @@ return {
 
     config = function()
         local capabilities = vim.lsp.protocol.make_client_capabilities()
-        --capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+        capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
         require('mason').setup()
         require('mason-lspconfig').setup({
@@ -17,10 +17,10 @@ return {
                 'lua_ls',
                 'rust_analyzer',
                 'jsonls',
-                -- 'ruff_lsp',
+                'ruff',  -- Modern Python linter/formatter
+                'basedpyright',  -- Better Pyright fork for Python
                 'zls',
                 'powershell_es',
-                -- 'pyright',
                 'marksman',
                 'sqlls',
                 -- 'gopls',
@@ -28,24 +28,62 @@ return {
                 'yamlls',
                 'taplo',
                 'dockerls',
+                'docker_compose_language_service',  -- Docker compose support
                 -- 'metalls',
-                'jedi_language_server'
+                -- 'jedi_language_server'  -- Replaced by basedpyright
             },
             handlers = {
                 function(server_name)
                     require('lspconfig')[server_name].setup {}
                 end,
 
-                --                ['pyright'] = function()
-                --                    local on_attach = {}
-                --                    local capabilities = {}
-                --                    local lspconfig = require('lspconfig')
-                --                    lspconfig.pyright.setup {
-                --                        -- on_attach = on_attach,
-                --                        capabilities = capabilities,
-                --                        filetypes = {'python'},
-                --                    }
-                --                end,
+                ['basedpyright'] = function()
+                    local lspconfig = require('lspconfig')
+                    lspconfig.basedpyright.setup {
+                        capabilities = capabilities,
+                        settings = {
+                            basedpyright = {
+                                analysis = {
+                                    typeCheckingMode = "standard",
+                                    autoImportCompletions = true,
+                                    diagnosticSeverityOverrides = {
+                                        strictListInference = true,
+                                        strictDictionaryInference = true,
+                                        strictSetInference = true,
+                                        reportUnusedImport = "warning",
+                                        reportUnusedClass = "warning",
+                                        reportUnusedFunction = "warning",
+                                        reportUnusedVariable = "warning",
+                                        reportUnusedCoroutine = "warning",
+                                        reportDuplicateImport = "warning",
+                                        reportPrivateUsage = "warning",
+                                        reportUnusedExpression = "warning",
+                                        reportConstantRedefinition = "error",
+                                        reportIncompatibleMethodOverride = "error",
+                                        reportMissingImports = "error",
+                                        reportUndefinedVariable = "error",
+                                        reportAssertAlwaysTrue = "error",
+                                    }
+                                }
+                            }
+                        }
+                    }
+                end,
+
+                ['ruff'] = function()
+                    local lspconfig = require('lspconfig')
+                    lspconfig.ruff.setup {
+                        capabilities = capabilities,
+                        init_options = {
+                            settings = {
+                                -- Ruff settings
+                                args = {
+                                    "--line-length=88",
+                                },
+                            }
+                        }
+                    }
+                end,
             }
         })
 

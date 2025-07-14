@@ -50,6 +50,17 @@ autocmd('LspAttach', {
 
 })
 
+-- Python specific keymaps
+autocmd('FileType', {
+    group = DataKaiGroup,
+    pattern = 'python',
+    callback = function()
+        local opts = { buffer = true }
+        vim.keymap.set('n', '<leader>rp', ':w<CR>:!python3 %<CR>', vim.tbl_extend('force', opts, { desc = 'Run Python file' }))
+        vim.keymap.set('n', '<leader>ri', ':w<CR>:!python3 -i %<CR>', vim.tbl_extend('force', opts, { desc = 'Run Python file (interactive)' }))
+    end
+})
+
 vim.g.netrw_browse_split = 0
 vim.g.netrw_banner = 0
 vim.g.netrw_winsize = 25

@@ -75,28 +75,33 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Enable digraph support for international characters
 vim.opt.digraph = true
 
-
 -- Auto-format markdown files on save
-vim.api.nvim_create_autocmd("BufWritePre", {
-    pattern = "*.md",
-    callback = function()
-        -- Fix common markdown issues
-
-        -- Convert spaces at beginning of list items
-        vim.cmd([[silent! %s/^\( *\)- /\1- /ge]])
-
-        -- Fix trailing spaces
-        vim.cmd([[silent! %s/\s\+$//ge]])
-
-        -- Ensure single blank line between sections
-        vim.cmd([[silent! %s/\(\n\n\)\n\+/\1/ge]])
-
-        -- Format tables if available
-        if vim.fn.exists(':TableFormat') > 0 then
-            vim.cmd('TableFormat')
-        end
-    end,
-})
+-- vim.api.nvim_create_autocmd("BufWritePre", {
+--     pattern = "*.md",
+--     callback = function()
+--         -- Save cursor position
+--         local cursor_pos = vim.api.nvim_win_get_cursor(0)
+--
+--         -- Fix common markdown issues
+--
+--         -- Convert spaces at beginning of list items (without affecting headers)
+--         vim.cmd([[silent! %s/^\( *\)- \([^ ]\)/\1- \2/ge]])
+--
+--         -- Fix trailing spaces
+--         vim.cmd([[silent! %s/\s\+$//ge]])
+--
+--         -- Ensure single blank line between sections
+--         vim.cmd([[silent! %s/\(\n\n\)\n\+/\1/ge]])
+--
+--         -- Format tables if available
+--         if vim.fn.exists(':TableFormat') > 0 then
+--             vim.cmd('TableFormat')
+--         end
+--
+--         -- Restore cursor position
+--         vim.api.nvim_win_set_cursor(0, cursor_pos)
+--     end,
+-- })
 
 -- Auto-format on save for specific file types
 vim.api.nvim_create_autocmd("BufWritePre", {
