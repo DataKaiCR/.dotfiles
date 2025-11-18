@@ -16,8 +16,8 @@ return {
         require("obsidian").setup({
             workspaces = {
                 {
-                    name = "second-brain",
-                    path = "~/second-brain",
+                    name = "scriptorium",
+                    path = "~/scriptorium",
                 },
             },
             -- Configure note locations
