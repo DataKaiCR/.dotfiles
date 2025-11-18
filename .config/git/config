@@ -1,6 +1,6 @@
 [user]
     name = datakaicr
-    email = hstecher@datakai.net
+	email = hstecher@datakai.net
 
 [core]
     editor = nvim
@@ -31,8 +31,10 @@
     tool = vimdiff
 
 [merge]
-    tool = vimdiff
+	tool = nvimdiff
     conflictstyle = diff3
 
 [credential]
-    helper = cache --timeout=3600
+	helper = osxkeychain
+[mergetool "nvimdiff"]
+	cmd = nvim -d \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
