@@ -3,6 +3,7 @@ require('datakai.remap')
 require('datakai.set')
 require('datakai.utils.markdown_tools').setup()
 require('datakai.utils.git_dotfiles_keymaps')
+require('datakai.utils.tmux_sessionizer').setup()
 
 
 local augroup = vim.api.nvim_create_augroup

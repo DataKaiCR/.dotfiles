@@ -40,26 +40,9 @@ M.setup = function()
     local note_manager = require("datakai.utils.note_manager")
 
     -- Note creation keymaps
-    vim.keymap.set("n", "<leader>zn", function()
-        note_manager.create_note({
-            base_folder = "00-inbox",
-            prompt_title = "Select folder:",
-            note_type = "note"
-        })
-    end, { desc = "Create new note in inbox" })
-
-    vim.keymap.set("n", "<leader>zq", function()
-        note_manager.create_quick_note()
-    end, { desc = "Create quick note directly in inbox" })
-
     vim.keymap.set("n", "<leader>zp", function()
-        note_manager.create_note({
-            base_folder = "10-projects",
-            prompt_title = "Select project folder:",
-            note_type = "project",
-            template_name = "project"
-        })
-    end, { desc = "Create note in Projects folder" })
+        note_manager.create_project_note()
+    end, { desc = "Create project work note" })
 
     vim.keymap.set("n", "<leader>za", function()
         note_manager.create_note({
@@ -70,44 +53,22 @@ M.setup = function()
         })
     end, { desc = "Create note in Areas folder" })
 
-    vim.keymap.set("n", "<leader>zr", function()
-        note_manager.create_note({
-            base_folder = "30-resources",
-            prompt_title = "Select resource folder:",
-            note_type = "resource",
-            template_name = "resource"
-        })
-    end, { desc = "Create note in Resources folder" })
-
-    vim.keymap.set("n", "<leader>zv", function()
-        note_manager.create_note({
-            base_folder = "40-archive",
-            prompt_title = "Select archive folder:",
-            note_type = "archive",
-            template_name = "archive"
-        })
-    end, { desc = "Create note in Archive folder" })
-
     vim.keymap.set("n", "<leader>zz", function()
-        note_manager.create_note({
-            base_folder = "50-zettelkasten",
-            prompt_title = "Select zettelkasten folder:",
-            note_type = "zettel",
-            template_name = "zettelkasten"
-        })
-    end, { desc = "Create Zettelkasten note" })
+        note_manager.create_zettel()
+    end, { desc = "Create Zettel" })
 
     vim.keymap.set("n", "<leader>zd", function()
         note_manager.create_daily_note()
     end, { desc = "Create/open daily note" })
 
-    vim.keymap.set("n", "<leader>zi", function()
-        note_manager.create_io_note("input")
-    end, { desc = "Create input note" })
+    vim.keymap.set("n", "<leader>zm", function()
+        note_manager.create_meeting_note()
+    end, { desc = "Create meeting note" })
 
-    vim.keymap.set("n", "<leader>zO", function()
-        note_manager.create_io_note("output")
-    end, { desc = "Create output note" })
+    -- Quick capture to inbox
+    vim.keymap.set("n", "<leader>zc", function()
+        note_manager.capture_to_inbox()
+    end, { desc = "Quick capture to inbox" })
 
     -- Navigation and utility keymaps
     vim.keymap.set("n", "<leader>zo", function()
@@ -139,6 +100,63 @@ M.setup = function()
             file_ignore_patterns = { "%.jpg", "%.png" },
         })
     end, { desc = "Search notes content" })
+    -- Enhanced workflow keymaps
+    vim.keymap.set("n", "<leader>zl", function()
+        require('telescope.builtin').find_files({
+            cwd = vim.fn.expand('~/second-brain/zettelkasten'),
+            prompt_title = 'Link to Zettel',
+            attach_mappings = function(_, map)
+                map('i', '<CR>', function(prompt_bufnr)
+                    local selection = require('telescope.actions.state').get_selected_entry()
+                    if selection then
+                        local filename = selection.value:match('([^/]+)%.md$')
+                        local link = '[[' .. filename .. ']]'
+                        vim.api.nvim_put({link}, 'c', true, true)
+                        require('telescope.actions').close(prompt_bufnr)
+                    end
+                end)
+                return true
+            end
+        })
+    end, { desc = 'Insert Zettel Link' })
+
+    vim.keymap.set("n", "<leader>zP", function()
+        note_manager.process_inbox_line()
+    end, { desc = 'Process Inbox Line' })
+
+    -- Removed: <leader>zc (capture_with_context) - conflicts with inbox capture
+    -- Old function wrote to daily journal directly
+    -- New <leader>zc defined above: opens inbox capture.md
+
+    vim.keymap.set("n", "<leader>zw", function()
+        note_manager.weekly_review()
+    end, { desc = 'Weekly Review' })
+
+    vim.keymap.set("n", "<leader>zC", function()
+        require('telescope.builtin').live_grep({
+            cwd = vim.fn.expand('~/second-brain'),
+            prompt_title = 'Search with Context',
+            additional_args = { '--context=2' }
+        })
+    end, { desc = 'Search Notes with Context' })
+
+    -- AI workflow keymaps
+    vim.keymap.set("n", "<leader>zE", function()
+        vim.cmd('!cd ~/second-brain && ./scripts/ai_workflow.sh export-rag')
+    end, { desc = 'Export notes for RAG' })
+
+    vim.keymap.set("n", "<leader>zT", function()
+        vim.cmd('!cd ~/second-brain && ./scripts/ai_workflow.sh list-tags')
+    end, { desc = 'List most common tags' })
+
+    vim.keymap.set("n", "<leader>zS", function()
+        vim.cmd('!cd ~/second-brain && ./scripts/ai_workflow.sh stats')
+    end, { desc = 'Show second-brain statistics' })
+
+    vim.keymap.set("n", "<leader>zB", function()
+        vim.cmd('!cd ~/second-brain && ./scripts/ai_workflow.sh backup')
+    end, { desc = 'Backup second-brain' })
+
     -- Reload command
     vim.keymap.set("n", "<leader>zR", function()
         M.init_obsidian()

@@ -33,7 +33,7 @@ return {
             daily_notes = {
                 enabled = true,
                 folder = "00-journal/daily",
-                date_format = "daily-%Y%m%d",
+                date_format = "%Y-%m-%d",
                 template = "daily",
             },
             -- Additional attachments configuration
@@ -53,9 +53,9 @@ return {
             },
             -- Note ID settings - use the title as the ID by default
             note_id_func = function(title)
-                -- Create note IDs in a Zettelkasten format with a timestamp and a suffix.
-                -- In this case a note with the title 'My new note' will be given an ID that looks
-                -- like '1657296016-my-new-note', and therefore the file name '1657296016-my-new-note.md'
+                -- Create note IDs with type prefix for filtering and uniqueness
+                -- Daily notes are exception (just date)
+                -- Format: [type]-[timestamp]-[slug]
                 local timestamp = os.date("%Y%m%d%H%M%S")
                 local suffix = ""
                 if title ~= nil then
@@ -70,19 +70,16 @@ return {
                 -- Use a global variable that gets set in your shortcut functions
                 if vim.g.current_note_type then
                     if vim.g.current_note_type == "daily" then
-                        return "daily-" .. os.date("%Y%m%d")
+                        -- Daily notes: just the date (never linked)
+                        return os.date("%Y-%m-%d")
                     elseif vim.g.current_note_type == "zettel" then
                         return "zettel-" .. timestamp .. "-" .. suffix
                     elseif vim.g.current_note_type == "project" then
                         return "project-" .. timestamp .. "-" .. suffix
                     elseif vim.g.current_note_type == "area" then
                         return "area-" .. timestamp .. "-" .. suffix
-                    elseif vim.g.current_note_type == "resource" then
-                        return "resource-" .. timestamp .. "-" .. suffix
-                    elseif vim.g.current_note_type == "input" then
-                        return "input-" .. timestamp .. "-" .. suffix
-                    elseif vim.g.current_note_type == "output" then
-                        return "output-" .. timestamp .. "-" .. suffix
+                    elseif vim.g.current_note_type == "meeting" then
+                        return "meeting-" .. timestamp .. "-" .. suffix
                     end
                 end
 

@@ -25,9 +25,11 @@ if is_linux then
     is_wsl = success and stdout:find("WSL") ~= nil
 end
 
--- Maximize window on startup
+-- Maximize window on startup and auto-attach to tmux
 wezterm.on('gui-startup', function(cmd)
-    local tab, pane, window = mux.spawn_window(cmd or {})
+    local tab, pane, window = mux.spawn_window(cmd or {
+        args = { '/bin/zsh', '-l', '-c', 'tmux attach || tmux' }
+    })
     window:gui_window():maximize()
 end)
 
@@ -165,6 +167,15 @@ config.keys = {
                     window:active_tab():set_title(line)
                 end
             end),
+        },
+    },
+
+    -- Tmux sessionizer integration
+    {
+        key = 'f',
+        mods = 'LEADER',
+        action = act.SpawnCommandInNewWindow {
+            args = { '/Users/hstecher/.local/bin/tmux-sessionizer' },
         },
     },
 }
