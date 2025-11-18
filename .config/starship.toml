@@ -1,40 +1,149 @@
-# Get editor completions based on the config schema
+# Starship Configuration - Data Engineering & Multi-Project Workflow
+# https://starship.rs/config/
+
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# Don't print a new line at the start of the prompt
+# Performance
 add_newline = false
-
-# Configure command timeout
 command_timeout = 1000
+scan_timeout = 30
 
-# Simplify prompt by disabling some modules
+# Custom format - optimized for project-based workflow
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$git_state\
+$python\
+$nodejs\
+$rust\
+$docker_context\
+$jobs\
+$cmd_duration\
+$line_break\
+$character"""
+
+# Username - show git identity context
+[username]
+show_always = true
+format = "[$user]($style) "
+style_user = "cyan bold"
+style_root = "red bold"
+
+# Hostname - useful for remote/WSL
+[hostname]
+ssh_only = false
+format = "[@$hostname]($style) "
+style = "green bold"
+disabled = false
+
+# Directory - emphasize project context
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+truncation_symbol = "…/"
+style = "blue bold"
+format = "[$path]($style)[$read_only]($read_only_style) "
+read_only = " 🔒"
+home_symbol = "~"
+
+# Show if in project/archive dir
+[directory.substitutions]
+"projects" = "📁"
+"archive" = "📦"
+"scriptorium" = "📓"
+
+# Git Branch - show current branch
+[git_branch]
+format = "[$symbol$branch(:$remote_branch)]($style) "
+symbol = " "
+style = "yellow bold"
+truncation_length = 30
+truncation_symbol = "…"
+
+# Git Status - detailed for active development
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "yellow"
+conflicted = "⚔️ "
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+untracked = "?${count}"
+stashed = "$${count}"
+modified = "!${count}"
+staged = "+${count}"
+renamed = "»${count}"
+deleted = "✘${count}"
+
+# Git State - show ongoing operations
+[git_state]
+format = '[\($state( $progress_current of $progress_total)\)]($style) '
+style = "bright-black"
+
+# Python - critical for data engineering
+[python]
+format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+symbol = "🐍 "
+style = "yellow"
+pyenv_version_name = true
+detect_extensions = ["py"]
+detect_files = ["requirements.txt", "pyproject.toml", ".python-version"]
+
+# Node.js - for full-stack projects
+[nodejs]
+format = "[$symbol($version )]($style)"
+symbol = "⬢ "
+style = "green"
+detect_files = ["package.json", ".node-version"]
+detect_folders = ["node_modules"]
+
+# Rust - for systems projects
+[rust]
+format = "[$symbol($version )]($style)"
+symbol = "🦀 "
+style = "red bold"
+detect_files = ["Cargo.toml"]
+
+# Docker - show active context
+[docker_context]
+format = "[$symbol$context]($style) "
+symbol = "🐋 "
+style = "blue bold"
+only_with_files = true
+detect_files = ["docker-compose.yml", "Dockerfile"]
+
+# Background jobs indicator
+[jobs]
+symbol = "✦"
+style = "bold blue"
+number_threshold = 1
+format = "[$symbol$number]($style) "
+
+# Command execution time - useful for long queries/builds
+[cmd_duration]
+min_time = 2000
+format = "took [$duration]($style) "
+style = "bold yellow"
+show_milliseconds = false
+
+# Character - changes based on status
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vicmd_symbol = "[❮](bold green)"
+
+# Disabled modules - not relevant to workflow
 [aws]
 disabled = true
 
 [gcloud]
 disabled = true
 
-# Customize Python section
-[python]
-format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
-symbol = "🐍 "
+[kubernetes]
+disabled = true
 
-# Custom format for directory
-[directory]
-truncation_length = 3
-truncate_to_repo = true
-style = "blue bold"
-
-# Git configuration
-[git_branch]
-format = "[$symbol$branch]($style) "
-style = "yellow"
-
-[git_status]
-format = '([\[$all_status$ahead_behind\]]($style) )'
-style = "yellow"
-
-# Command execution time
-[cmd_duration]
-min_time = 5000
-format = "took [$duration]($style) "
+# Optional: Show project metadata if .project.toml exists
+# (This would require custom integration - future enhancement)
