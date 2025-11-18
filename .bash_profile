@@ -32,3 +32,4 @@ if [ -z "$SSH_AUTH_SOCK" ] ; then
 fi
 . "/home/wmhstecher/.deno/env"
 . "/Users/hstecher/.deno/env"
+. "$HOME/.local/share/../bin/env"

@@ -91,7 +91,7 @@ if [[ "$SYSTEM" == "WSL" ]]; then
 else
     # Regular paths for macOS and Linux Mint
     alias ws="cd $HOME/workspace"
-    alias res="cd $HOME/resources"
+    alias rsrc="cd $HOME/resources"
     alias brain="cd $HOME/second-brain"
     alias pers="cd $HOME/personal"
     alias dl="cd $HOME/downloads"
@@ -341,3 +341,5 @@ if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
 fi
 . "/home/wmhstecher/.deno/env"
 . "/Users/hstecher/.deno/env"
+
+. "$HOME/.local/share/../bin/env"
