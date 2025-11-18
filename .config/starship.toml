@@ -1,0 +1,40 @@
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Don't print a new line at the start of the prompt
+add_newline = false
+
+# Configure command timeout
+command_timeout = 1000
+
+# Simplify prompt by disabling some modules
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+# Customize Python section
+[python]
+format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+symbol = "🐍 "
+
+# Custom format for directory
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+style = "blue bold"
+
+# Git configuration
+[git_branch]
+format = "[$symbol$branch]($style) "
+style = "yellow"
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "yellow"
+
+# Command execution time
+[cmd_duration]
+min_time = 5000
+format = "took [$duration]($style) "

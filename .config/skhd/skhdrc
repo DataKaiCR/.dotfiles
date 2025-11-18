@@ -1,0 +1,9 @@
+# Focus windows
+
+
+# Switch spaces to mimic i3
+alt - 1 : yabai -m space --focus browser
+cmd - 2 : yabai -m space --focus notes
+alt - 3 : yabai -m space --focus terminal
+alt - 4 : yabai -m space --focus comms
+alt - 5 : yabai -m space --focus work 

@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+# Global settings
+yabai -m config layout              bsp
+yabai -m config window_placement    second_child
+yabai -m config window_topmost      off
+yabai -m config window_shadow       on
+
+# Define spaces
+yabai -m space 1 --label browser
+yabai -m space 2 --label notes
+yabai -m space 3 --label terminal
+yabai -m space 4 --label comms
+yabai -m space 5 --label work
+yabai -m space 6 --label music
+
+# App rules
+yabai -m rule --add app="^Safari$" space=browser
+yabai -m rule --add app="^WezTerm$" space=terminal
