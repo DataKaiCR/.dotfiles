@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Preview script for tmux-sessionizer
+
+project_path="$1"
+
+if [ -f "$project_path/.project.toml" ]; then
+    echo "=== PROJECT METADATA ==="
+    echo ""
+
+    # Parse and display metadata
+    name=$(grep "^name = " "$project_path/.project.toml" | sed 's/name = "\(.*\)"/\1/')
+    status=$(grep "^status = " "$project_path/.project.toml" | sed 's/status = "\(.*\)"/\1/')
+    type=$(grep "^type = " "$project_path/.project.toml" | sed 's/type = "\(.*\)"/\1/')
+    primary=$(grep "^primary = " "$project_path/.project.toml" | sed 's/primary = "\(.*\)"/\1/')
+    stack=$(grep "^stack = " "$project_path/.project.toml" | sed 's/stack = //' | tr -d '[]"')
+    description=$(grep "^description = " "$project_path/.project.toml" | sed 's/description = "\(.*\)"/\1/')
+
+    [ -n "$name" ] && echo "Name: $name"
+    [ -n "$status" ] && echo "Status: $status"
+    [ -n "$type" ] && echo "Type: $type"
+    [ -n "$primary" ] && echo "Owner: $primary"
+    [ -n "$stack" ] && echo "Stack: $stack"
+    [ -n "$description" ] && echo "" && echo "$description"
+    echo ""
+    echo "=== DIRECTORY CONTENTS ==="
+    echo ""
+fi
+
+ls -la "$project_path" 2>/dev/null | head -20

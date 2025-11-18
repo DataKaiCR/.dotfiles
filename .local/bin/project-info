@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# Project Info - Display metadata for a project
+
+if [ $# -eq 0 ]; then
+    echo "Usage: project-info <project-path-or-name>"
+    echo "Example: project-info cert-study-platform"
+    echo "Example: project-info ~/projects/cert-study-platform"
+    exit 1
+fi
+
+project_input="$1"
+
+# If it's a directory path, use it directly
+if [ -d "$project_input" ]; then
+    project_path="$project_input"
+# Otherwise, search for it in standard locations
+else
+    # Search in projects, archive, etc.
+    if [ -d "$HOME/projects/$project_input" ]; then
+        project_path="$HOME/projects/$project_input"
+    elif [ -d "$HOME/archive/$project_input" ]; then
+        project_path="$HOME/archive/$project_input"
+    else
+        echo "Error: Project '$project_input' not found"
+        exit 1
+    fi
+fi
+
+# Check if .project.toml exists
+if [ ! -f "$project_path/.project.toml" ]; then
+    echo "Error: No .project.toml found in $project_path"
+    exit 1
+fi
+
+# Parse and display metadata
+toml_file="$project_path/.project.toml"
+
+echo "=== PROJECT METADATA ==="
+echo ""
+echo "Path: $project_path"
+echo ""
+
+# Parse key fields
+name=$(grep "^name = " "$toml_file" | sed 's/name = "\(.*\)"/\1/')
+id=$(grep "^id = " "$toml_file" | sed 's/id = "\(.*\)"/\1/')
+status=$(grep "^status = " "$toml_file" | sed 's/status = "\(.*\)"/\1/')
+type=$(grep "^type = " "$toml_file" | sed 's/type = "\(.*\)"/\1/')
+primary=$(grep "^primary = " "$toml_file" | sed 's/primary = "\(.*\)"/\1/')
+partners=$(grep "^partners = " "$toml_file" | sed 's/partners = //' | tr -d '[]"')
+my_role=$(grep "^my_role = " "$toml_file" | sed 's/my_role = "\(.*\)"/\1/')
+stack=$(grep "^stack = " "$toml_file" | sed 's/stack = //' | tr -d '[]"')
+domain=$(grep "^domain = " "$toml_file" | sed 's/domain = //' | tr -d '[]"')
+started=$(grep "^started = " "$toml_file" | sed 's/started = "\(.*\)"/\1/')
+completed=$(grep "^completed = " "$toml_file" | sed 's/completed = "\(.*\)"/\1/')
+repository=$(grep "^repository = " "$toml_file" | sed 's/repository = "\(.*\)"/\1/')
+scriptorium=$(grep "^scriptorium_project = " "$toml_file" | sed 's/scriptorium_project = "\(.*\)"/\1/')
+description=$(grep "^description = " "$toml_file" | sed 's/description = "\(.*\)"/\1/')
+
+# Display
+[ -n "$name" ] && echo "Name: $name"
+[ -n "$id" ] && echo "ID: $id"
+[ -n "$status" ] && echo "Status: $status"
+[ -n "$type" ] && echo "Type: $type"
+echo ""
+
+echo "Ownership:"
+[ -n "$primary" ] && echo "  Primary: $primary"
+[ -n "$partners" ] && echo "  Partners: $partners"
+[ -n "$my_role" ] && echo "  My Role: $my_role"
+echo ""
+
+echo "Technical:"
+[ -n "$stack" ] && echo "  Stack: $stack"
+[ -n "$domain" ] && echo "  Domain: $domain"
+echo ""
+
+echo "Timeline:"
+[ -n "$started" ] && echo "  Started: $started"
+[ -n "$completed" ] && echo "  Completed: ${completed:-'(ongoing)'}"
+echo ""
+
+if [ -n "$repository" ] || [ -n "$scriptorium" ]; then
+    echo "Links:"
+    [ -n "$repository" ] && echo "  Repository: $repository"
+    [ -n "$scriptorium" ] && echo "  Scriptorium: $scriptorium"
+    echo ""
+fi
+
+[ -n "$description" ] && echo "Description:" && echo "  $description"

@@ -1,0 +1,36 @@
+# Project Metadata
+# See: ~/.config/docs/PROJECT_METADATA_SYSTEM.md
+
+[project]
+name = "Project Display Name"
+id = "project-directory-name"    # MUST match directory name
+status = "active"                 # active | paused | completed | archived
+type = "product"                  # product | client-project | internal | experiment
+
+[ownership]
+primary = "datakai"               # datakai | westmonroe | personal
+partners = []                     # ["westmonroe", "partner2"]
+license_model = ""                # exclusive | perpetual | shared | "" (empty for products)
+
+[client]
+# Only fill for type = "client-project"
+end_client = ""                   # The actual client organization
+intermediary = ""                 # Who connects you (e.g., "westmonroe")
+my_role = ""                      # owner | employee | contractor | partner
+
+[tech]
+stack = []                        # ["python", "react", "databricks"]
+domain = []                       # ["ai", "data-engineering", "web"]
+
+[dates]
+started = "YYYY-MM-DD"           # Project start date
+completed = ""                    # YYYY-MM-DD or empty if active
+
+[links]
+scriptorium_project = ""          # Path in scriptorium (e.g., "10-projects/datakai/project-name")
+repository = ""                   # Git remote URL
+documentation = ""                # Docs URL if exists
+conduit_graph = ""                # Future: Conduit knowledge graph ID
+
+[notes]
+description = ""                  # Project description and context

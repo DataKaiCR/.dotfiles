@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# Tmux Sessionizer - Quickly jump to projects and create/attach sessions
+# Inspired by ThePrimeagen workflows
+
+# Define top-level directories to search (searches nested projects automatically)
+SEARCH_DIRS=(
+    "$HOME/projects"
+    "$HOME/archive"
+    "$HOME/scriptorium"
+    "$HOME/.config"
+)
+
+# Helper to extract metadata field from TOML
+get_metadata() {
+    local toml_file="$1"
+    local field="$2"
+    grep "^$field = " "$toml_file" 2>/dev/null | sed "s/$field = \"\(.*\)\"/\1/" || echo ""
+}
+
+# If argument provided, use it as the selected directory
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    # Build enriched list: path + metadata for searchable display
+    # Format: "/full/path | dir_name | name | status | owner"
+    project_list=$(
+        find "${SEARCH_DIRS[@]}" -name ".git" -type d -prune 2>/dev/null | \
+        sed 's|/.git||' | \
+        grep -v "/tmux/plugins/" | \
+        while read -r project_path; do
+            dir_name=$(basename "$project_path")
+            if [ -f "$project_path/.project.toml" ]; then
+                name=$(get_metadata "$project_path/.project.toml" "name")
+                status=$(get_metadata "$project_path/.project.toml" "status")
+                primary=$(get_metadata "$project_path/.project.toml" "primary")
+
+                # Format: path | dir_name | full_name | status | owner
+                printf "%s|%s|%s|%s|%s\n" \
+                    "$project_path" \
+                    "$dir_name" \
+                    "${name:-$dir_name}" \
+                    "${status:-unknown}" \
+                    "${primary:-none}"
+            else
+                # No metadata, just show dir name
+                printf "%s|%s|%s|%s|%s\n" \
+                    "$project_path" \
+                    "$dir_name" \
+                    "$dir_name" \
+                    "-" \
+                    "-"
+            fi
+        done | sort -t'|' -k2
+    )
+
+    # Use fzf to select with searchable metadata
+    # Display format with tabs: "dir_name\t[owner]\tstatus"
+    selected=$(echo "$project_list" | \
+        awk -F'|' '{printf "%s\t[%s]\t%s\n", $2, $5, $4}' | fzf \
+        --height 60% \
+        --reverse \
+        --border \
+        --ansi \
+        --tabstop=40 \
+        --prompt="⚡ Project: " \
+        --preview 'tmux-sessionizer-preview $(echo "$project_list" | grep "^$(echo {} | cut -f1 | sed "s/\t.*$//")" | cut -d"|" -f1)' \
+        --preview-window=right:50%:wrap \
+        --preview-label="[ Metadata & Contents ]" \
+        | cut -f1
+    )
+
+    # Extract the full path from the project_list using the selected dir name
+    if [[ -n "$selected" ]]; then
+        selected=$(echo "$project_list" | grep "|$selected|" | head -1 | cut -d'|' -f1)
+    fi
+fi
+
+# Exit if nothing selected
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+# Create session name from directory (replace dots with underscores)
+selected_name=$(basename "$selected" | tr . _)
+
+# Check if session exists
+if tmux has-session -t="$selected_name" 2>/dev/null; then
+    # Session exists, just switch to it
+    if [[ -z $TMUX ]]; then
+        tmux attach-session -t "$selected_name"
+    else
+        tmux switch-client -t "$selected_name"
+    fi
+else
+    # Session doesn't exist - offer to use project-setup or basic session
+    echo "Session '$selected_name' doesn't exist yet."
+    echo ""
+    echo "Create with:"
+    echo "  1) Auto-detected layout (recommended)"
+    echo "  2) Basic session (single window)"
+    echo "  3) Cancel"
+    echo ""
+    read -p "Choose [1-3] (default: 1): " choice
+    choice=${choice:-1}
+
+    case $choice in
+        1)
+            # Use the project-setup script
+            exec tmux-project-setup "$selected"
+            ;;
+        2)
+            # Create basic session
+            if [[ -z $TMUX ]]; then
+                tmux new-session -s "$selected_name" -c "$selected"
+            else
+                tmux new-session -ds "$selected_name" -c "$selected"
+                tmux switch-client -t "$selected_name"
+            fi
+            ;;
+        *)
+            echo "Cancelled."
+            exit 0
+            ;;
+    esac
+fi
