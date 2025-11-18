@@ -16,24 +16,36 @@
 *.backup
 *.bak
 
-# Credentials and secrets
-.aws/
+# SSH - Track config, ignore keys
+.ssh/*_key
+.ssh/*_key.pub
+.ssh/*.pem
+.ssh/known_hosts
+.ssh/known_hosts.old
+
+# AWS - Track config, ignore credentials
+.aws/credentials
+.aws/cli/cache/
+
+# Azure - Ignore (has tokens/sessions)
 .azure/
 .azure-devops/
-.ssh/
-.databrickscfg
-.databricks/
+
+# Databricks - Track template, ignore with secrets
+# (Handle manually: commit template, keep local with secrets)
+
+# Cloud/Tool secrets
 .boto
 .claude.json
 .claude.json.backup
 .npmrc
 
-# Tool-specific
+# Tool state/cache
 .npm/
 .pyenv/
 .local/share/
 .local/state/
-.docker/
+.docker/contexts/
 .terraform.d/
 .great_expectations/
 .vim/
@@ -70,18 +82,14 @@ second-brain-backup-*.tar.gz
 .vscode/
 .claude/
 
-# Config dirs that are machine-specific or auto-generated
+# Config dirs that are auto-generated or cloud-synced
 .config/claude/
 .config/github-copilot/
 .config/gcloud/
 .config/Snowflake Inc/
 .config/colima/
-.config/fish/
 .config/uv/
 .config/opencode/
-.config/yabai/
-.config/skhd/
-.config/aerospace/
 .config/tmux/plugins/
 
 # Binaries auto-installed
