@@ -4,6 +4,7 @@ require('datakai.set')
 require('datakai.utils.markdown_tools').setup()
 require('datakai.utils.git_dotfiles_keymaps')
 require('datakai.utils.tmux_sessionizer').setup()
+require('datakai.utils.benchmark')  -- Load benchmarking utilities
 
 
 local augroup = vim.api.nvim_create_augroup
