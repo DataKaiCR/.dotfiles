@@ -94,19 +94,27 @@
 - `<leader>ps` - Grep search in files
 - `<leader>pb` - Browse buffers
 
-## Harpoon File Navigation
-- `<leader>a` - Add file to Harpoon
-- `<C-e>` - Toggle Harpoon menu
-- `<C-h>` - Navigate to Harpoon file 1
-- `<C-t>` - Navigate to Harpoon file 2
-- `<C-n>` - Navigate to Harpoon file 3
-- `<C-s>` - Navigate to Harpoon file 4
+## Harpoon File Navigation (v2)
+- `<leader>ha` - Add file to Harpoon
+- `<leader>hh` - Toggle Harpoon menu
+- `<leader>h1` - Navigate to Harpoon file 1
+- `<leader>h2` - Navigate to Harpoon file 2
+- `<leader>h3` - Navigate to Harpoon file 3
+- `<leader>h4` - Navigate to Harpoon file 4
+- `<leader>hp` - Previous Harpoon file
+- `<leader>hn` - Next Harpoon file
 
 ## Obsidian/Notes
 - `<leader>z*` - Various Obsidian commands (see obsidian_keymaps.lua)
 
 ## Dotfiles Management
-- `<leader>d*` - Various dotfiles commands (see git_dotfiles_keymaps.lua)
+- `<leader>dfs` - Dotfiles status
+- `<leader>dfa` - Dotfiles add current file
+- `<leader>dfA` - Dotfiles add all changes
+- `<leader>dfr` - Dotfiles remove file
+- `<leader>dfc` - Dotfiles commit
+- `<leader>dfp` - Dotfiles push
+- `<leader>dfl` - Dotfiles pull
 
 ## Terminal Commands
 

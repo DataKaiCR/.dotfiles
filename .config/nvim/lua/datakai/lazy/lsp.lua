@@ -99,20 +99,27 @@ return {
         --         'codelldb'
         --     }
         -- })
-        require('lspconfig').yamlls.setup {
-            settings = {
-                yaml = {
-                    schemas = {
-                        ["https://raw.githubusercontent.com/databricks/databricks-cli/main/databricks_cli/workspace/databricks.yaml"] = "/*databricks*.{yml,yaml}",
-                        ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
-                        ["https://raw.githubusercontent.com/docker/compose/master/compose/config/compose_spec.json"] = "*docker-compose*.{yml,yaml}",
-                        -- Add other schemas as needed
+
+        -- YAML LSP with custom schemas (Databricks, GitHub Actions, Docker Compose)
+        -- Note: mason-lspconfig handles the basic setup, this adds custom schemas
+        local lspconfig = require('lspconfig')
+        if lspconfig.yamlls then
+            lspconfig.yamlls.setup {
+                capabilities = capabilities,
+                settings = {
+                    yaml = {
+                        schemas = {
+                            ["https://raw.githubusercontent.com/databricks/databricks-cli/main/databricks_cli/workspace/databricks.yaml"] = "/*databricks*.{yml,yaml}",
+                            ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
+                            ["https://raw.githubusercontent.com/docker/compose/master/compose/config/compose_spec.json"] = "*docker-compose*.{yml,yaml}",
+                            -- Add other schemas as needed
+                        },
+                        format = { enabled = true },
+                        validate = true,
+                        completion = true,
                     },
-                    format = { enabled = true },
-                    validate = true,
-                    completion = true,
                 },
-            },
-        }
+            }
+        end
     end
 }

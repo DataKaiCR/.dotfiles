@@ -14,14 +14,18 @@ vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 
 vim.keymap.set("n", "<leader><leader>", function()
-    vim.cmd('so')
-end)
+    vim.cmd('so %')  -- Source current file (% = current buffer)
+end, { desc = "Source current file" })
 
 -- Clipboard shortcuts
 vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Copy to system clipboard" })
 vim.keymap.set({ "n", "v" }, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
 vim.keymap.set("n", "<leader>Y", '"+Y', { desc = "Copy line to system clipboard" })
 --vim.keymap.set('n', '<leader>zo', ":ObsidianFollowLink<CR>", { desc = "Open Link" })
+
+-- LazyGit integration
+vim.keymap.set("n", "<leader>gg", ":terminal lazygit<CR>", { desc = "LazyGit" })
+vim.keymap.set("n", "<leader>gl", ":terminal lazygit log<CR>", { desc = "LazyGit log" })
 
 -- Create a new file in the current directory
 vim.keymap.set("n", "<leader>nf", function()

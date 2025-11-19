@@ -10,45 +10,46 @@ return {
     lazy = false,  -- Load immediately instead of lazy-loading
     priority = 50, -- Give it a higher priority for faster loading
     config = function()
-        -- Require the note manager module
+        -- Load centralized config
+        local config = require("datakai.config")
         local note_manager = require("datakai.utils.note_manager")
 
         require("obsidian").setup({
             workspaces = {
                 {
-                    name = "scriptorium",
-                    path = "~/scriptorium",
+                    name = config.knowledge.vault_name,
+                    path = config.knowledge.vault_path,
                 },
             },
             -- Configure note locations
-            notes_subdir = "00-inbox",
+            notes_subdir = config.knowledge.folders.inbox,
             new_notes_location = "notes_subdir",
             -- Templates configuration
             templates = {
-                subdir = "_templates",
-                date_format = "%Y-%m-%d",
-                time_format = "%H:%M:%S%z",
+                subdir = config.knowledge.templates.subdir,
+                date_format = config.knowledge.templates.date_format,
+                time_format = config.knowledge.templates.time_format,
             },
             -- Daily notes configuration
             daily_notes = {
                 enabled = true,
-                folder = "00-journal/daily",
-                date_format = "%Y-%m-%d",
+                folder = config.knowledge.folders.daily,
+                date_format = config.knowledge.templates.date_format,
                 template = "daily",
             },
             -- Additional attachments configuration
             attachments = {
-                img_folder = "_assets/images",
+                img_folder = config.knowledge.assets.images,
                 additional_folders = {
-                    "_assets/excalidraw",
-                    "_assets/input",
-                    "_assets/output"
+                    config.knowledge.assets.excalidraw,
+                    config.knowledge.assets.input,
+                    config.knowledge.assets.output,
                 },
             },
             -- UI settings
             ui = {
-                enable = true,
-                conceallevel = 2,
+                enable = config.ui.use_icons,
+                conceallevel = config.ui.conceallevel,
                 folding = true,
             },
             -- Note ID settings - use the title as the ID by default

@@ -10,14 +10,14 @@ M.setup = function()
     local git_account = require("datakai.utils.git_account")
     local git_helpers = require("datakai.utils.git_helpers")
 
-    -- Dotfiles keymaps with descriptions
-    vim.keymap.set("n", "<leader>ds", dotfiles.status, { desc = "Dotfiles status" })
-    vim.keymap.set("n", "<leader>da", dotfiles.add_current, { desc = "Dotfiles add current file" })
-    vim.keymap.set("n", "<leader>dA", dotfiles.add_all, { desc = "Dotfiles add all changes" })
-    vim.keymap.set("n", "<leader>dr", dotfiles.remove_file, { desc = "Dotfiles remove file" })
-    vim.keymap.set("n", "<leader>dc", dotfiles.commit, { desc = "Dotfiles commit" })
-    vim.keymap.set("n", "<leader>dp", dotfiles.push, { desc = "Dotfiles push" })
-    vim.keymap.set("n", "<leader>dl", dotfiles.pull, { desc = "Dotfiles pull" })
+    -- Dotfiles keymaps with descriptions (using df prefix to avoid conflict with DAP debugger)
+    vim.keymap.set("n", "<leader>dfs", dotfiles.status, { desc = "Dotfiles status" })
+    vim.keymap.set("n", "<leader>dfa", dotfiles.add_current, { desc = "Dotfiles add current file" })
+    vim.keymap.set("n", "<leader>dfA", dotfiles.add_all, { desc = "Dotfiles add all changes" })
+    vim.keymap.set("n", "<leader>dfr", dotfiles.remove_file, { desc = "Dotfiles remove file" })
+    vim.keymap.set("n", "<leader>dfc", dotfiles.commit, { desc = "Dotfiles commit" })
+    vim.keymap.set("n", "<leader>dfp", dotfiles.push, { desc = "Dotfiles push" })
+    vim.keymap.set("n", "<leader>dfl", dotfiles.pull, { desc = "Dotfiles pull" })
 
     -- Git account management - uses ga prefix
     vim.keymap.set("n", "<leader>gas", git_account.switch_account, { desc = "Switch Git account" })
