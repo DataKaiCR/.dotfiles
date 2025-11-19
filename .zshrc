@@ -194,6 +194,16 @@ if [ -f ~/.config/zsh/aliases.zsh ]; then
     source ~/.config/zsh/aliases.zsh
 fi
 
+# Modern CLI tools (bat, eza, zoxide, delta, etc.)
+if [ -f ~/.config/zsh/modern-tools.zsh ]; then
+    source ~/.config/zsh/modern-tools.zsh
+fi
+
+# Cloud account switcher (AWS, Azure, Databricks)
+if [ -f ~/.config/cloud-switcher.sh ]; then
+    source ~/.config/cloud-switcher.sh
+fi
+
 # ---------- Load Local Configuration ----------
 # Source local settings that shouldn't be committed to git
 if [ -f "$HOME/.zshrc.local" ]; then

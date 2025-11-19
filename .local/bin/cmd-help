@@ -1,0 +1,378 @@
+#!/usr/bin/env bash
+# Command Help - Discover and manage all your custom commands and aliases
+# Works with: aliases, functions, scripts, and scriptorium knowledge base
+
+VERSION="1.0.0"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m' # No Color
+
+# Show usage
+show_usage() {
+    cat << 'USAGE'
+cmd-help - Discover and manage your custom commands
+
+Usage:
+    cmd-help [command]                 Show help and usage
+    cmd-help list [category]           List all commands by category
+    cmd-help search <query>            Search commands and aliases
+    cmd-help cloud                     Show cloud commands
+    cmd-help project                   Show project commands
+    cmd-help tmux                      Show tmux commands
+    cmd-help zoxide                    Show zoxide commands
+    cmd-help all                       Show everything
+
+Categories:
+    cloud       - AWS, Azure, GCP, Databricks, Snowflake
+    project     - Project management (project, here, new, archive)
+    tmux        - Tmux sessionizer and navigation
+    zoxide      - Smart directory jumping (z, zp, zc, zn, zwork)
+    git         - Git and GitHub CLI commands
+    files       - File operations (bat, eza, fd, rg)
+    cache       - Cache management (tsrefresh, tsinfo)
+
+Examples:
+    cmd-help cloud          # Show all cloud commands
+    cmd-help search aws     # Search for aws-related commands
+    cmd-help                # Interactive mode (coming soon)
+USAGE
+}
+
+# List commands by category
+list_commands() {
+    local category="${1:-all}"
+
+    case "$category" in
+        cloud|clouds)
+            show_cloud_commands
+            ;;
+        project|projects)
+            show_project_commands
+            ;;
+        tmux)
+            show_tmux_commands
+            ;;
+        zoxide|z)
+            show_zoxide_commands
+            ;;
+        git)
+            show_git_commands
+            ;;
+        files|file)
+            show_file_commands
+            ;;
+        cache)
+            show_cache_commands
+            ;;
+        all)
+            show_cloud_commands
+            echo ""
+            show_project_commands
+            echo ""
+            show_tmux_commands
+            echo ""
+            show_zoxide_commands
+            echo ""
+            show_git_commands
+            echo ""
+            show_file_commands
+            echo ""
+            show_cache_commands
+            ;;
+        *)
+            echo -e "${RED}Unknown category: $category${NC}"
+            echo ""
+            show_usage
+            return 1
+            ;;
+    esac
+}
+
+# Cloud commands
+show_cloud_commands() {
+    echo -e "${CYAN}☁️  Cloud Commands${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    echo -e "${GREEN}Multi-Cloud:${NC}"
+    echo "  cs <client>        | cloud-switch | Switch all clouds at once"
+    echo "  cs-dk              | Shortcut for cloud-switch datakai"
+    echo "  cs-wm              | Shortcut for cloud-switch westmonroe"
+    echo "  cs-ep              | Shortcut for cloud-switch express"
+    echo "  cs-tl              | Shortcut for cloud-switch trulieve"
+    echo "  cstat              | cloud-status | Show all cloud contexts"
+    echo ""
+    
+    echo -e "${GREEN}AWS:${NC}"
+    echo "  awsp <profile>     | Switch AWS profile"
+    echo "  aws-datakai        | Quick switch to datakai AWS"
+    echo "  aws-westmonroe     | Quick switch to westmonroe AWS"
+    echo "  aws-express        | Quick switch to express AWS"
+    echo "  aws-trulieve       | Quick switch to trulieve AWS"
+    echo "  aws-whoami         | Show current AWS identity"
+    echo ""
+    
+    echo -e "${GREEN}Azure:${NC}"
+    echo "  azsp <subscription>| Switch Azure subscription"
+    echo "  az-datakai         | Quick switch to datakai Azure"
+    echo "  az-westmonroe      | Quick switch to westmonroe Azure"
+    echo "  az-express         | Quick switch to express Azure"
+    echo "  az-whoami          | Show current Azure identity"
+    echo ""
+    
+    echo -e "${GREEN}GCP:${NC}"
+    echo "  gcpp <project>     | Switch GCP project"
+    echo "  gcp-datakai        | Quick switch to datakai GCP"
+    echo "  gcp-westmonroe     | Quick switch to westmonroe GCP"
+    echo "  gcp-express        | Quick switch to express GCP"
+    echo "  gcp-whoami         | Show current GCP account"
+    echo ""
+    
+    echo -e "${GREEN}Databricks:${NC}"
+    echo "  dbxp <profile>     | Switch Databricks profile"
+    echo "  dbx-westmonroe     | Quick switch to westmonroe Databricks"
+    echo "  dbx-express        | Quick switch to express Databricks"
+    echo "  dbx-trulieve       | Quick switch to trulieve Databricks"
+    echo ""
+    
+    echo -e "${GREEN}Snowflake:${NC}"
+    echo "  snowp <account>    | Switch Snowflake account"
+    echo "  snow-datakai       | Quick switch to datakai Snowflake"
+    echo "  snow-westmonroe    | Quick switch to westmonroe Snowflake"
+    echo "  snow-express       | Quick switch to express Snowflake"
+    echo "  snow-trulieve      | Quick switch to trulieve Snowflake"
+    echo "  snow-whoami        | Show current Snowflake context"
+}
+
+# Project commands
+show_project_commands() {
+    echo -e "${CYAN}📁 Project Commands${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    echo -e "${GREEN}Management:${NC}"
+    echo "  project new <name>     | Create new project + auto-refresh cache"
+    echo "  project here           | Show current project info"
+    echo "  project archive <name> | Archive project + auto-refresh cache"
+    echo "  project delete <name>  | Delete project (with confirmation)"
+    echo "  project edit <name>    | Edit project metadata"
+    echo ""
+    
+    echo -e "${GREEN}Query:${NC}"
+    echo "  project list [filter]  | List projects (active, archived, datakai, etc.)"
+    echo "  project show <name>    | Show detailed project info"
+    echo "  project search <query> | Search by keyword"
+    echo "  project find <tech>    | Find by technology"
+    echo "  project clients        | List client projects"
+    echo "  project stats          | Show statistics"
+    echo "  project validate       | Validate .project.toml files"
+}
+
+# Tmux commands
+show_tmux_commands() {
+    echo -e "${CYAN}🪟  Tmux Commands${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    echo -e "${GREEN}Sessionizer:${NC}"
+    echo "  <C-b> f            | Open tmux-sessionizer (fuzzy find projects)"
+    echo "  <C-b> (            | Previous session"
+    echo "  <C-b> )            | Next session"
+    echo ""
+    
+    echo -e "${GREEN}Windows:${NC}"
+    echo "  <C-b> 1-9          | Jump to window number"
+    echo "  <C-b> c            | Create new window"
+    echo "  <C-b> ,            | Rename window"
+    echo "  <C-b> &            | Kill window"
+    echo ""
+    
+    echo -e "${GREEN}Panes:${NC}"
+    echo "  <C-b> %            | Split vertical"
+    echo "  <C-b> \"            | Split horizontal"
+    echo "  <C-b> arrow        | Navigate panes"
+    echo "  <C-b> x            | Kill pane"
+}
+
+# Zoxide commands
+show_zoxide_commands() {
+    echo -e "${CYAN}🚀 Zoxide Commands${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    echo -e "${GREEN}Navigation:${NC}"
+    echo "  z <pattern>        | Jump to directory (learns from usage)"
+    echo "  zi                 | Interactive jump with fzf"
+    echo "  cd <path>          | Aliased to 'z'"
+    echo ""
+    
+    echo -e "${GREEN}Integrated:${NC}"
+    echo "  zp <pattern>       | Jump + show project info"
+    echo "  zc <pattern>       | Jump + check cloud context"
+    echo "  zn <pattern>       | Jump + open in nvim"
+    echo "  zwork <pattern>    | Jump + info + cloud (complete workflow)"
+}
+
+# Git commands
+show_git_commands() {
+    echo -e "${CYAN}🌳 Git Commands${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    echo -e "${GREEN}Lazygit:${NC}"
+    echo "  lg                 | lazygit (TUI git client)"
+    echo "  lzg                | lazygit (alias)"
+    echo ""
+    
+    echo -e "${GREEN}Quick Commands:${NC}"
+    echo "  gst                | git status"
+    echo "  glog               | git log --oneline --graph --decorate --all"
+    echo "  diff               | delta (better diff viewer)"
+    echo "  gdiff              | git diff | delta"
+    echo "  gshow              | git show | delta"
+    echo ""
+    
+    echo -e "${GREEN}GitHub CLI:${NC}"
+    echo "  prc                | gh pr create --fill"
+    echo "  prv                | gh pr view --web"
+    echo "  prs                | gh pr status"
+    echo "  prl                | gh pr list"
+    echo "  prcheck            | gh pr checks"
+    echo "  repo               | gh repo view --web"
+    echo "  issue              | gh issue create"
+    echo "  issues             | gh issue list"
+}
+
+# File commands
+show_file_commands() {
+    echo -e "${CYAN}📄 File Commands${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    echo -e "${GREEN}Viewing:${NC}"
+    echo "  cat                | bat --style=plain (syntax highlighting)"
+    echo "  catp               | bat --style=plain"
+    echo "  preview            | bat with line numbers"
+    echo ""
+    
+    echo -e "${GREEN}Listing:${NC}"
+    echo "  ls                 | eza --icons (modern ls)"
+    echo "  ll                 | eza --long --git"
+    echo "  la                 | eza --long --all --git"
+    echo "  lt                 | eza --tree --level=2"
+    echo "  ltt                | eza --tree --level=3"
+    echo "  lg                 | eza --long --git (git-focused)"
+    echo "  lf                 | eza sorted by modified time"
+    echo "  lz                 | eza sorted by size"
+    echo ""
+    
+    echo -e "${GREEN}Search:${NC}"
+    echo "  ff                 | Fuzzy find file + open in nvim"
+    echo "  rg-edit <pattern>  | Ripgrep search + open in nvim"
+    echo "  pf                 | Project file search"
+    echo "  zd                 | Directory jump with eza preview"
+}
+
+# Cache commands
+show_cache_commands() {
+    echo -e "${CYAN}🔄 Cache Commands${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    echo -e "${GREEN}Sessionizer Cache:${NC}"
+    echo "  tsrefresh          | Manually refresh tmux-sessionizer cache"
+    echo "  tsinfo             | Show cache status and age"
+    echo ""
+    
+    echo -e "${YELLOW}Auto-refresh on:${NC}"
+    echo "  • project new"
+    echo "  • project archive"
+    echo "  • project delete"
+    echo "  • Every 1 hour (background)"
+    echo ""
+    
+    echo -e "${YELLOW}Manual refresh needed:${NC}"
+    echo "  • git clone"
+    echo "  • rm -rf (manual delete)"
+    echo "  • mv (rename/move)"
+}
+
+# Search commands
+search_commands() {
+    local query="$1"
+    
+    if [ -z "$query" ]; then
+        echo -e "${RED}Error: Search query required${NC}"
+        echo "Usage: cmd-help search <query>"
+        return 1
+    fi
+    
+    echo -e "${CYAN}🔍 Search Results for: $query${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    
+    # Search in aliases
+    echo -e "${GREEN}Aliases:${NC}"
+    alias | grep -i "$query" | sed 's/alias /  /' || echo "  (none found)"
+    echo ""
+    
+    # Search in functions
+    echo -e "${GREEN}Functions:${NC}"
+    declare -F | awk '{print $3}' | grep -i "$query" | sed 's/^/  /' || echo "  (none found)"
+    echo ""
+    
+    # Search in scripts
+    echo -e "${GREEN}Scripts in ~/.local/bin:${NC}"
+    ls ~/.local/bin 2>/dev/null | grep -i "$query" | sed 's/^/  /' || echo "  (none found)"
+}
+
+# Main dispatcher
+main() {
+    local command="${1:-help}"
+    shift || true
+    
+    case "$command" in
+        list)
+            list_commands "$@"
+            ;;
+        cloud|clouds)
+            show_cloud_commands
+            ;;
+        project|projects)
+            show_project_commands
+            ;;
+        tmux)
+            show_tmux_commands
+            ;;
+        zoxide|z)
+            show_zoxide_commands
+            ;;
+        git)
+            show_git_commands
+            ;;
+        files|file)
+            show_file_commands
+            ;;
+        cache)
+            show_cache_commands
+            ;;
+        search)
+            search_commands "$@"
+            ;;
+        all)
+            list_commands all
+            ;;
+        help|--help|-h)
+            show_usage
+            ;;
+        *)
+            # If argument provided, search for it
+            if [ -n "$command" ]; then
+                search_commands "$command"
+            else
+                show_usage
+            fi
+            ;;
+    esac
+}
+
+main "$@"
