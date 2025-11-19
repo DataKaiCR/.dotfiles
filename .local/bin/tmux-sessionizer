@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 # Tmux Sessionizer - Quickly jump to projects and create/attach sessions
 # Inspired by ThePrimeagen workflows
+# Optimized with caching for instant startup
 
-# Define top-level directories to search (searches nested projects automatically)
+# Define top-level directories to search
 SEARCH_DIRS=(
     "$HOME/projects"
     "$HOME/archive"
     "$HOME/scriptorium"
     "$HOME/.config"
 )
+
+# Cache configuration
+CACHE_FILE="${TMPDIR:-/tmp}/tmux-sessionizer-cache-$USER"
+CACHE_MAX_AGE=3600  # 1 hour in seconds (adjust as needed)
 
 # Helper to extract metadata field from TOML
 get_metadata() {
@@ -17,41 +22,70 @@ get_metadata() {
     grep "^$field = " "$toml_file" 2>/dev/null | sed "s/$field = \"\(.*\)\"/\1/" || echo ""
 }
 
+# Fast project discovery with caching
+build_project_list() {
+    local cache_valid=false
+
+    # Check if cache exists and is recent
+    if [[ -f "$CACHE_FILE" ]]; then
+        local cache_age=$(($(date +%s) - $(stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0)))
+        if [[ $cache_age -lt $CACHE_MAX_AGE ]]; then
+            cache_valid=true
+        fi
+    fi
+
+    # Use cache if valid, otherwise rebuild
+    if [[ "$cache_valid" == true ]]; then
+        cat "$CACHE_FILE"
+    else
+        # Rebuild cache (runs in background for next time)
+        (
+            # Use fd if available (much faster), otherwise use find
+            if command -v fd &>/dev/null; then
+                fd -HI -t d '^\.git$' "${SEARCH_DIRS[@]}" 2>/dev/null | sed 's|/\.git/$||'
+            else
+                find "${SEARCH_DIRS[@]}" -name ".git" -type d -prune 2>/dev/null | sed 's|/\.git||'
+            fi | \
+            grep -v "/tmux/plugins/" | \
+            while read -r project_path; do
+                dir_name=$(basename "$project_path")
+                if [[ -f "$project_path/.project.toml" ]]; then
+                    proj_name=$(get_metadata "$project_path/.project.toml" "name")
+                    proj_status=$(get_metadata "$project_path/.project.toml" "status")
+                    proj_owner=$(get_metadata "$project_path/.project.toml" "primary")
+
+                    printf "%s|%s|%s|%s|%s\n" \
+                        "$project_path" \
+                        "$dir_name" \
+                        "${proj_name:-$dir_name}" \
+                        "${proj_status:-unknown}" \
+                        "${proj_owner:-none}"
+                else
+                    printf "%s|%s|%s|%s|%s\n" \
+                        "$project_path" \
+                        "$dir_name" \
+                        "$dir_name" \
+                        "-" \
+                        "-"
+                fi
+            done | sort -t'|' -k2 > "$CACHE_FILE.tmp"
+            mv "$CACHE_FILE.tmp" "$CACHE_FILE"
+        ) &
+
+        # For first run, wait for cache to build
+        if [[ ! -f "$CACHE_FILE" ]]; then
+            wait
+        fi
+        cat "$CACHE_FILE" 2>/dev/null || echo ""
+    fi
+}
+
 # If argument provided, use it as the selected directory
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
-    # Build enriched list: path + metadata for searchable display
-    # Format: "/full/path | dir_name | name | status | owner"
-    project_list=$(
-        find "${SEARCH_DIRS[@]}" -name ".git" -type d -prune 2>/dev/null | \
-        sed 's|/.git||' | \
-        grep -v "/tmux/plugins/" | \
-        while read -r project_path; do
-            dir_name=$(basename "$project_path")
-            if [ -f "$project_path/.project.toml" ]; then
-                name=$(get_metadata "$project_path/.project.toml" "name")
-                status=$(get_metadata "$project_path/.project.toml" "status")
-                primary=$(get_metadata "$project_path/.project.toml" "primary")
-
-                # Format: path | dir_name | full_name | status | owner
-                printf "%s|%s|%s|%s|%s\n" \
-                    "$project_path" \
-                    "$dir_name" \
-                    "${name:-$dir_name}" \
-                    "${status:-unknown}" \
-                    "${primary:-none}"
-            else
-                # No metadata, just show dir name
-                printf "%s|%s|%s|%s|%s\n" \
-                    "$project_path" \
-                    "$dir_name" \
-                    "$dir_name" \
-                    "-" \
-                    "-"
-            fi
-        done | sort -t'|' -k2
-    )
+    # Build project list (from cache if available)
+    project_list=$(build_project_list)
 
     # Use fzf to select with searchable metadata
     # Display format with tabs: "dir_name\t[owner]\tstatus"
@@ -63,9 +97,9 @@ else
         --ansi \
         --tabstop=40 \
         --prompt="⚡ Project: " \
-        --preview 'tmux-sessionizer-preview $(echo "$project_list" | grep "^$(echo {} | cut -f1 | sed "s/\t.*$//")" | cut -d"|" -f1)' \
+        --preview 'echo {}' \
         --preview-window=right:50%:wrap \
-        --preview-label="[ Metadata & Contents ]" \
+        --preview-label="[ Quick Select ]" \
         | cut -f1
     )
 
@@ -82,6 +116,37 @@ fi
 
 # Create session name from directory (replace dots with underscores)
 selected_name=$(basename "$selected" | tr . _)
+
+# Auto-switch cloud context based on .project.toml
+if [[ -f "$selected/.project.toml" ]]; then
+    owner=$(grep 'primary.*=' "$selected/.project.toml" | sed 's/.*"\(.*\)".*/\1/')
+
+    if [[ -n "$owner" ]]; then
+        # Export environment variables for cloud context
+        export AWS_PROFILE="$owner"
+        export DATABRICKS_CONFIG_PROFILE="$owner"
+
+        # Switch Azure subscription (if cloud-switcher is loaded)
+        if type azsp &>/dev/null; then
+            case "$owner" in
+                datakai)
+                    azsp "DataKai Development" &>/dev/null
+                    ;;
+                westmonroe)
+                    azsp "West Monroe Sandbox" &>/dev/null
+                    ;;
+                express)
+                    azsp "Express Pros Prod" &>/dev/null
+                    ;;
+            esac
+        fi
+
+        # Show notification of cloud context switch
+        echo "☁️  Switched cloud context to: $owner"
+        echo "   AWS: $AWS_PROFILE"
+        echo "   Databricks: $DATABRICKS_CONFIG_PROFILE"
+    fi
+fi
 
 # Check if session exists
 if tmux has-session -t="$selected_name" 2>/dev/null; then

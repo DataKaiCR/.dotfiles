@@ -50,6 +50,37 @@ SESSION_NAME=$(echo "$PROJECT_NAME" | tr . _)
 
 echo -e "${BLUE}Setting up tmux session for: ${GREEN}$PROJECT_NAME${NC}"
 
+# Auto-switch cloud context based on .project.toml
+if [[ -f "$PROJECT_DIR/.project.toml" ]]; then
+    owner=$(grep 'primary.*=' "$PROJECT_DIR/.project.toml" | sed 's/.*"\(.*\)".*/\1/')
+
+    if [[ -n "$owner" ]]; then
+        # Export environment variables for cloud context
+        export AWS_PROFILE="$owner"
+        export DATABRICKS_CONFIG_PROFILE="$owner"
+
+        # Switch Azure subscription (if cloud-switcher is loaded)
+        if type azsp &>/dev/null; then
+            case "$owner" in
+                datakai)
+                    azsp "DataKai Development" &>/dev/null
+                    ;;
+                westmonroe)
+                    azsp "West Monroe Sandbox" &>/dev/null
+                    ;;
+                express)
+                    azsp "Express Pros Prod" &>/dev/null
+                    ;;
+            esac
+        fi
+
+        echo -e "${GREEN}☁️  Switched cloud context to: $owner${NC}"
+        echo -e "   AWS: $AWS_PROFILE"
+        echo -e "   Databricks: $DATABRICKS_CONFIG_PROFILE"
+        echo ""
+    fi
+fi
+
 # Auto-detect project type if not specified
 if [[ -z "$LAYOUT_TYPE" ]]; then
     echo -e "${YELLOW}Auto-detecting project type...${NC}"

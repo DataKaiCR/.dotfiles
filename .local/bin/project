@@ -50,7 +50,11 @@ Commands:
 
     archive <name>         Move project to archive and update status
 
+    delete <name>          Permanently delete a project (with confirmation)
+
     edit <name>            Open project metadata in editor
+
+    here                   Show info for current directory's project
 
     help                   Show this help message
 
@@ -61,6 +65,8 @@ Examples:
     project find python
     project clients
     project new my-new-project
+    project delete old-project
+    project here              # When inside a project directory
 
 EOF
 }
@@ -405,10 +411,73 @@ cmd_new() {
         print_success "Created project: $name"
         echo "  Path: $project_path"
         echo "  Edit: project edit $name"
+
+        # Refresh tmux-sessionizer cache
+        if type tsrefresh &>/dev/null; then
+            echo ""
+            print_info "Refreshing project cache..."
+            tsrefresh 2>&1 | grep -v "^$"
+        fi
     else
         print_error "Template not found at ~/.config/templates/.project.toml"
         rmdir "$project_path"
         return 1
+    fi
+}
+
+# Delete a project permanently
+cmd_delete() {
+    local name="$1"
+
+    if [ -z "$name" ]; then
+        print_error "Project name required"
+        echo "Usage: project delete <name>"
+        return 1
+    fi
+
+    # Find project in either location
+    local project_path=""
+    local location=""
+
+    if [ -d "$PROJECTS_DIR/$name" ]; then
+        project_path="$PROJECTS_DIR/$name"
+        location="projects"
+    elif [ -d "$ARCHIVE_DIR/$name" ]; then
+        project_path="$ARCHIVE_DIR/$name"
+        location="archive"
+    else
+        print_error "Project '$name' not found"
+        return 1
+    fi
+
+    # Show what will be deleted
+    print_warning "⚠️  WARNING: This will permanently delete:"
+    echo "  Location: $project_path ($location)"
+    if [ -f "$project_path/.project.toml" ]; then
+        project_name=$(get_field "$project_path/.project.toml" "name")
+        echo "  Name: $project_name"
+    fi
+    echo ""
+
+    # Confirm deletion
+    echo -n "Type the project name to confirm deletion: "
+    read confirmation
+
+    if [ "$confirmation" != "$name" ]; then
+        print_info "Deletion cancelled"
+        return 0
+    fi
+
+    # Delete the project
+    rm -rf "$project_path"
+
+    print_success "Deleted project: $name"
+
+    # Refresh tmux-sessionizer cache
+    if type tsrefresh &>/dev/null; then
+        echo ""
+        print_info "Refreshing project cache..."
+        tsrefresh 2>&1 | grep -v "^$"
     fi
 }
 
@@ -446,6 +515,13 @@ cmd_archive() {
 
     print_success "Archived project: $name"
     echo "  New location: $dest"
+
+    # Refresh tmux-sessionizer cache
+    if type tsrefresh &>/dev/null; then
+        echo ""
+        print_info "Refreshing project cache..."
+        tsrefresh 2>&1 | grep -v "^$"
+    fi
 }
 
 # Edit project metadata
@@ -464,11 +540,37 @@ cmd_edit() {
     elif [ -d "$ARCHIVE_DIR/$name" ]; then
         project_path="$ARCHIVE_DIR/$name"
     else
-        print_error "Project '$name' not found"
+        print_error "Project '$name" not found"
         return 1
     fi
 
     ${EDITOR:-nvim} "$project_path/.project.toml"
+}
+
+# Show info for current directory's project
+cmd_here() {
+    local current_dir="$PWD"
+
+    # Check if we're in a project directory
+    if [ -f ".project.toml" ]; then
+        project-info "$current_dir"
+    elif [ -f "../.project.toml" ]; then
+        project-info "$(dirname "$current_dir")"
+    else
+        # Search up the directory tree
+        local search_dir="$current_dir"
+        while [ "$search_dir" != "/" ] && [ "$search_dir" != "$HOME" ]; do
+            if [ -f "$search_dir/.project.toml" ]; then
+                project-info "$search_dir"
+                return 0
+            fi
+            search_dir="$(dirname "$search_dir")"
+        done
+
+        print_error "Not in a project directory"
+        echo "No .project.toml found in current directory or parent directories"
+        return 1
+    fi
 }
 
 # Main command dispatcher
@@ -486,7 +588,9 @@ main() {
         validate)   cmd_validate "$@" ;;
         new)        cmd_new "$@" ;;
         archive)    cmd_archive "$@" ;;
+        delete)     cmd_delete "$@" ;;
         edit)       cmd_edit "$@" ;;
+        here)       cmd_here "$@" ;;
         help|--help|-h) show_usage ;;
         *)
             print_error "Unknown command: $command"

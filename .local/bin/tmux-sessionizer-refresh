@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Tmux Sessionizer Cache Refresh
+# Manually refresh the project cache
+
+CACHE_FILE="${TMPDIR:-/tmp}/tmux-sessionizer-cache-$USER"
+
+echo "Refreshing tmux-sessionizer cache..."
+
+# Remove old cache
+rm -f "$CACHE_FILE" "$CACHE_FILE.tmp"
+
+# Run sessionizer with no selection to rebuild cache
+echo "Scanning projects..."
+timeout 10 tmux-sessionizer 2>/dev/null <<< "" || true
+
+if [[ -f "$CACHE_FILE" ]]; then
+    project_count=$(wc -l < "$CACHE_FILE")
+    echo "✓ Cache refreshed! Found $project_count projects."
+    echo "Cache location: $CACHE_FILE"
+else
+    echo "✗ Cache refresh failed. Try running tmux-sessionizer manually."
+    exit 1
+fi
