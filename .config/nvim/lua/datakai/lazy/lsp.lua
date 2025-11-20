@@ -34,12 +34,11 @@ return {
             },
             handlers = {
                 function(server_name)
-                    require('lspconfig')[server_name].setup {}
+                    vim.lsp.config(server_name, {})
                 end,
 
                 ['basedpyright'] = function()
-                    local lspconfig = require('lspconfig')
-                    lspconfig.basedpyright.setup {
+                    vim.lsp.config('basedpyright', {
                         capabilities = capabilities,
                         settings = {
                             basedpyright = {
@@ -67,12 +66,11 @@ return {
                                 }
                             }
                         }
-                    }
+                    })
                 end,
 
                 ['ruff'] = function()
-                    local lspconfig = require('lspconfig')
-                    lspconfig.ruff.setup {
+                    vim.lsp.config('ruff', {
                         capabilities = capabilities,
                         init_options = {
                             settings = {
@@ -82,7 +80,7 @@ return {
                                 },
                             }
                         }
-                    }
+                    })
                 end,
             }
         })
@@ -102,9 +100,7 @@ return {
 
         -- YAML LSP with custom schemas (Databricks, GitHub Actions, Docker Compose)
         -- Note: mason-lspconfig handles the basic setup, this adds custom schemas
-        local lspconfig = require('lspconfig')
-        if lspconfig.yamlls then
-            lspconfig.yamlls.setup {
+        vim.lsp.config('yamlls', {
                 capabilities = capabilities,
                 settings = {
                     yaml = {
@@ -119,7 +115,6 @@ return {
                         completion = true,
                     },
                 },
-            }
-        end
+            })
     end
 }
