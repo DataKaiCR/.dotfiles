@@ -58,7 +58,7 @@ This document outlines the organization and components of my Neovim configuratio
 
 The configuration includes a comprehensive setup for knowledge management with Obsidian:
 
-#### Folder Structure (in ~/second-brain/)
+#### Folder Structure (in ~/scriptorium/)
 - `00-inbox`: Capture zone for new notes
 - `00-journal`: Daily notes and journals
 - `10-projects`: Project notes (following PARA methodology)

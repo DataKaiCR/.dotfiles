@@ -184,24 +184,24 @@ M.get_data_dir = function(name)
     return path
 end
 
--- Detect second-brain location across platforms
+-- Detect scriptorium location across platforms
 M.get_brain_dir = function()
     local home = M.get_home()
     local candidates = {
-        home .. "/second-brain",
-        home .. "/Documents/second-brain",
+        home .. "/scriptorium",
+        home .. "/Documents/scriptorium",
     }
 
-    -- WSL might have second-brain in Windows home
+    -- WSL might have scriptorium in Windows home
     if M.os == "wsl" then
         local win_home = M.get_win_home()
         if win_home then
-            table.insert(candidates, win_home .. "/second-brain")
-            table.insert(candidates, win_home .. "/Documents/second-brain")
+            table.insert(candidates, win_home .. "/scriptorium")
+            table.insert(candidates, win_home .. "/Documents/scriptorium")
 
             -- Also check OneDrive
-            table.insert(candidates, win_home .. "/OneDrive/second-brain")
-            table.insert(candidates, win_home .. "/OneDrive - West Monroe/second-brain")
+            table.insert(candidates, win_home .. "/OneDrive/scriptorium")
+            table.insert(candidates, win_home .. "/OneDrive - West Monroe/scriptorium")
         end
     end
 
@@ -213,7 +213,7 @@ M.get_brain_dir = function()
     end
 
     -- Default to home dir if not found
-    return home .. "/second-brain"
+    return home .. "/scriptorium"
 end
 
 -- Get os independent command for opening terminal

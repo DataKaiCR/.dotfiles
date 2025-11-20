@@ -26,7 +26,7 @@ end
 -- Create meeting note in project-specific meetings folder
 M.create_meeting_note = function()
     -- Step 1: List all top-level company/client folders
-    local command = "find -L ~/second-brain/10-projects -maxdepth 1 -type d -not -path '*/\\.*' -not -path '*/10-projects' | sort"
+    local command = "find -L ~/scriptorium/10-projects -maxdepth 1 -type d -not -path '*/\\.*' -not -path '*/10-projects' | sort"
     local handle = io.popen(command)
     local result = handle:read("*a")
     handle:close()
@@ -55,7 +55,7 @@ M.create_meeting_note = function()
 
         -- Step 2: List subfolders + option for general meetings
         local sub_command = string.format(
-            "find -L ~/second-brain/10-projects/%s -maxdepth 1 -type d -not -path '*/\\.*' -not -path '*/meetings' | sort",
+            "find -L ~/scriptorium/10-projects/%s -maxdepth 1 -type d -not -path '*/\\.*' -not -path '*/meetings' | sort",
             selected_company
         )
         local sub_handle = io.popen(sub_command)
@@ -94,7 +94,7 @@ M.create_meeting_note = function()
             end
 
             -- Ensure meetings subfolder exists
-            local full_path = vim.fn.expand("~/second-brain/" .. meetings_path)
+            local full_path = vim.fn.expand("~/scriptorium/" .. meetings_path)
             vim.fn.mkdir(full_path, "p")
 
             -- Set note type

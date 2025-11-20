@@ -87,7 +87,7 @@ M.setup = function()
     vim.keymap.set("n", "<leader>zf", function()
         require("telescope.builtin").find_files({
             prompt_title = "Find Notes",
-            cwd = "~/second-brain",
+            cwd = "~/scriptorium",
             file_ignore_patterns = { "%.jpg", "%.png" },
             find_command = { "fd", "--type", "f", "--extension", "md" },
         })
@@ -96,14 +96,14 @@ M.setup = function()
     vim.keymap.set("n", "<leader>zg", function()
         require("telescope.builtin").live_grep({
             prompt_title = "Search Notes Content",
-            cwd = "~/second-brain",
+            cwd = "~/scriptorium",
             file_ignore_patterns = { "%.jpg", "%.png" },
         })
     end, { desc = "Search notes content" })
     -- Enhanced workflow keymaps
     vim.keymap.set("n", "<leader>zl", function()
         require('telescope.builtin').find_files({
-            cwd = vim.fn.expand('~/second-brain/zettelkasten'),
+            cwd = vim.fn.expand('~/scriptorium/zettelkasten'),
             prompt_title = 'Link to Zettel',
             attach_mappings = function(_, map)
                 map('i', '<CR>', function(prompt_bufnr)
@@ -134,7 +134,7 @@ M.setup = function()
 
     vim.keymap.set("n", "<leader>zC", function()
         require('telescope.builtin').live_grep({
-            cwd = vim.fn.expand('~/second-brain'),
+            cwd = vim.fn.expand('~/scriptorium'),
             prompt_title = 'Search with Context',
             additional_args = { '--context=2' }
         })
@@ -142,20 +142,20 @@ M.setup = function()
 
     -- AI workflow keymaps
     vim.keymap.set("n", "<leader>zE", function()
-        vim.cmd('!cd ~/second-brain && ./scripts/ai_workflow.sh export-rag')
+        vim.cmd('!cd ~/scriptorium && ./scripts/ai_workflow.sh export-rag')
     end, { desc = 'Export notes for RAG' })
 
     vim.keymap.set("n", "<leader>zT", function()
-        vim.cmd('!cd ~/second-brain && ./scripts/ai_workflow.sh list-tags')
+        vim.cmd('!cd ~/scriptorium && ./scripts/ai_workflow.sh list-tags')
     end, { desc = 'List most common tags' })
 
     vim.keymap.set("n", "<leader>zS", function()
-        vim.cmd('!cd ~/second-brain && ./scripts/ai_workflow.sh stats')
-    end, { desc = 'Show second-brain statistics' })
+        vim.cmd('!cd ~/scriptorium && ./scripts/ai_workflow.sh stats')
+    end, { desc = 'Show scriptorium statistics' })
 
     vim.keymap.set("n", "<leader>zB", function()
-        vim.cmd('!cd ~/second-brain && ./scripts/ai_workflow.sh backup')
-    end, { desc = 'Backup second-brain' })
+        vim.cmd('!cd ~/scriptorium && ./scripts/ai_workflow.sh backup')
+    end, { desc = 'Backup scriptorium' })
 
     -- Reload command
     vim.keymap.set("n", "<leader>zR", function()

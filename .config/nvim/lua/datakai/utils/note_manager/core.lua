@@ -222,7 +222,7 @@ M.create_note = function(options)
     end
 
     -- List all subdirectories - but use realpath to resolve symlinks
-    local command = string.format("find -L ~/second-brain/%s -type d -not -path '*/\\.*' | sort", base_folder)
+    local command = string.format("find -L ~/scriptorium/%s -type d -not -path '*/\\.*' | sort", base_folder)
     local handle = io.popen(command)
     local result = handle:read("*a")
     handle:close()
@@ -255,7 +255,7 @@ M.create_note = function(options)
                 -- Create new note with obsidian - use path relative to vault
                 local obsidian_path = selected
                 if obsidian_path:match("^/") then
-                    -- Extract the part after second-brain/
+                    -- Extract the part after scriptorium/
                     obsidian_path = obsidian_path:match("second%-brain/(.+)$") or obsidian_path
                 end
 
@@ -297,7 +297,7 @@ M.weekly_review = function()
     -- Find recent notes (last 7 days)
     local recent_cmd = string.format(
         'find %s -name "*.md" -mtime -7 -type f | head -20',
-        vim.fn.expand('~/second-brain')
+        vim.fn.expand('~/scriptorium')
     )
 
     local recent_files = vim.fn.systemlist(recent_cmd)
@@ -329,7 +329,7 @@ M.weekly_review = function()
     -- Check recent daily notes for ideas sections
     local daily_files = vim.fn.systemlist(string.format(
         'find %s/00-journal/daily -name "*.md" -mtime -7 -type f | sort -r | head -7',
-        vim.fn.expand('~/second-brain')
+        vim.fn.expand('~/scriptorium')
     ))
 
     for _, daily_file in ipairs(daily_files) do
@@ -340,7 +340,7 @@ M.weekly_review = function()
     end
 
     -- Check inbox for items
-    local inbox_file = vim.fn.expand('~/second-brain/00-inbox/inbox.md')
+    local inbox_file = vim.fn.expand('~/scriptorium/00-inbox/inbox.md')
     if vim.fn.filereadable(inbox_file) == 1 then
         local inbox_lines = vim.fn.readfile(inbox_file)
         for _, line in ipairs(inbox_lines) do

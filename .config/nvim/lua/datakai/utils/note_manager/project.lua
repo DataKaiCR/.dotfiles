@@ -137,7 +137,7 @@ end
 -- Create project work note in company → project → notes/ hierarchy
 M.create_project_note = function()
     -- Step 1: List all top-level company folders
-    local command = "find -L ~/second-brain/10-projects -maxdepth 1 -type d -not -path '*/\\.*' -not -path '*/10-projects' | sort"
+    local command = "find -L ~/scriptorium/10-projects -maxdepth 1 -type d -not -path '*/\\.*' -not -path '*/10-projects' | sort"
     local handle = io.popen(command)
     local result = handle:read("*a")
     handle:close()
@@ -166,7 +166,7 @@ M.create_project_note = function()
 
         -- Step 2: List projects in that company (exclude notes/ and meetings/ folders)
         local sub_command = string.format(
-            "find -L ~/second-brain/10-projects/%s -maxdepth 1 -type d -not -path '*/\\.*' -not -path '*/notes' -not -path '*/meetings' | sort",
+            "find -L ~/scriptorium/10-projects/%s -maxdepth 1 -type d -not -path '*/\\.*' -not -path '*/notes' -not -path '*/meetings' | sort",
             selected_company
         )
         local sub_handle = io.popen(sub_command)
@@ -187,7 +187,7 @@ M.create_project_note = function()
             if title == "" then return end
 
             local notes_path = "10-projects/" .. selected_company .. "/notes"
-            local full_path = vim.fn.expand("~/second-brain/" .. notes_path)
+            local full_path = vim.fn.expand("~/scriptorium/" .. notes_path)
             vim.fn.mkdir(full_path, "p")
 
             vim.g.current_note_type = "project"
@@ -213,7 +213,7 @@ M.create_project_note = function()
             if title == "" then return end
 
             local notes_path = "10-projects/" .. selected_company .. "/" .. selected_project .. "/notes"
-            local full_path = vim.fn.expand("~/second-brain/" .. notes_path)
+            local full_path = vim.fn.expand("~/scriptorium/" .. notes_path)
             vim.fn.mkdir(full_path, "p")
 
             vim.g.current_note_type = "project"

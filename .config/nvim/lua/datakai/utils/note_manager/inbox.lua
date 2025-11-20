@@ -5,7 +5,7 @@ local core = require("datakai.utils.note_manager.core")
 
 -- Smart inbox capture - creates/finds today's section
 M.capture_to_inbox = function()
-    local inbox_file = vim.fn.expand("~/second-brain/00-inbox/capture.md")
+    local inbox_file = vim.fn.expand("~/scriptorium/00-inbox/capture.md")
 
     -- Open the file
     vim.cmd("edit " .. inbox_file)
@@ -145,7 +145,7 @@ M.capture_with_context = function()
 
     -- Use the correct daily note format (YYYY-MM-DD)
     local daily_file = string.format('%s/00-journal/daily/%s.md',
-        vim.fn.expand('~/second-brain'), os.date('%Y-%m-%d'))
+        vim.fn.expand('~/scriptorium'), os.date('%Y-%m-%d'))
 
     -- Build the entry - append to Ideas section
     local entry = {}
